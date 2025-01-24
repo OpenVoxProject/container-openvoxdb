@@ -1,0 +1,8 @@
+{
+  "include": [
+    {
+      "release": 8,
+      "version": "8.9.0"
+    }
+  ]
+}

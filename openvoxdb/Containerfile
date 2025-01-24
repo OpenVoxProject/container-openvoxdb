@@ -1,0 +1,95 @@
+FROM ubuntu:24.04
+
+ARG vcs_ref
+ARG build_date
+ARG build_type
+
+LABEL org.label-schema.maintainer="Voxpupuli Release Team <voxpupuli@groups.io>" \
+      org.label-schema.vendor="OpenVoxProject" \
+      org.label-schema.url="https://github.com/OpenVoxProject/container-openvoxdb" \
+      org.label-schema.license="AGPLv3+" \
+      org.label-schema.vcs-url="https://github.com/OpenVoxProject/container-openvoxdb" \
+      org.label-schema.schema-version="1.0" \
+      org.label-schema.dockerfile="/Containerfile" \
+      org.label-schema.name="OpenVoxDB ($build_type)" \
+      org.label-schema.vcs-ref="$vcs_ref" \
+      org.label-schema.build-date="$build_date"
+
+ARG TARGETARCH
+ARG PACKAGES="ca-certificates curl dnsutils netcat-traditional dumb-init"
+
+ARG LOGDIR
+ENV LOGDIR=${LOGDIR:-/opt/puppetlabs/server/data/puppetdb/logs}
+
+ARG OPENVOX_RELEASE
+ENV OPENVOX_RELEASE=${OPENVOX_RELEASE:-8}
+
+ARG OPENVOXDB_VERSION
+ENV OPENVOXDB_VERSION=${OPENVOXDB_VERSION:-8.9.0}
+
+ARG SSLDIR
+ENV SSLDIR=${SSLDIR:-/opt/puppetlabs/server/data/puppetdb/certs}
+
+ENV CERTNAME="openvoxdb" \
+    DEBIAN_FRONTEND=noninteractive \
+    DNS_ALT_NAMES="" \
+    OPENVOXDB_JAVA_ARGS="-Djava.net.preferIPv4Stack=true -Xms256m -Xmx256m -XX:+UseParallelGC -Xlog:gc*:file=$LOGDIR/puppetdb_gc.log -Djdk.tls.ephemeralDHKeySize=2048" \
+    OPENVOXDB_NODE_PURGE_TTL=14d \
+    OPENVOXDB_NODE_TTL=7d \
+    OPENVOXDB_POSTGRES_PASSWORD=openvoxdb \
+    OPENVOXDB_POSTGRES_DATABASE="openvoxdb" \
+    OPENVOXDB_POSTGRES_HOSTNAME="postgres" \
+    OPENVOXDB_POSTGRES_PORT="5432" \
+    OPENVOXDB_REPORT_TTL=14d \
+    OPENVOXDB_POSTGRES_USER=openvoxdb \
+    UBUNTU_VERSION="24.04" \
+    USE_OPENVOXSERVER=true \
+    WAITFORCERT=""
+
+ADD ssl.sh \
+    wtfc.sh \
+    docker-entrypoint.sh \
+    healthcheck.sh \
+    /
+
+COPY docker-entrypoint.d /docker-entrypoint.d
+
+ADD https://apt.overlookinfratech.com/openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb /
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    dpkg -i /openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb && \
+    rm /openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb
+
+RUN apt update && \
+    apt upgrade -y && \
+    apt install --no-install-recommends -y ${PACKAGES} && \
+    chmod +x /ssl.sh /wtfc.sh /docker-entrypoint.sh /healthcheck.sh /docker-entrypoint.d/*.sh && \
+    apt install -y openvoxdb=${OPENVOXDB_VERSION}-1+ubuntu${UBUNTU_VERSION} && \
+    apt autoremove -y && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p "$LOGDIR" && \
+    chown puppetdb:puppetdb "$LOGDIR" && \
+    # We want to use the HOCON database.conf and config.conf files, so get rid of the packaged files
+    rm -f /etc/puppetlabs/puppetdb/conf.d/database.ini && \
+    rm -f /etc/puppetlabs/puppetdb/conf.d/config.ini
+
+COPY logback.xml \
+     request-logging.xml \
+     /etc/puppetlabs/puppetdb/
+COPY conf.d /etc/puppetlabs/puppetdb/conf.d/
+COPY puppetdb /etc/default/puppetdb
+COPY Containerfile /
+
+# The start-period is just a wild guess how long it takes PuppetDB to come
+# up in the worst case. The other timing parameters are set so that it
+# takes at most a minute to realize that PuppetDB has failed.
+# Probe failure during --start-period will not be counted towards the maximum number of retries
+# NOTE: k8s uses livenessProbe, startupProbe, readinessProbe and ignores HEALTHCHECK
+HEALTHCHECK --start-period=5m --interval=10s --timeout=10s --retries=6 CMD ["/healthcheck.sh"]
+
+# NOTE: this is just documentation on defaults
+EXPOSE 8080 8081
+
+ENTRYPOINT ["dumb-init", "/docker-entrypoint.sh"]
+CMD ["foreground"]
