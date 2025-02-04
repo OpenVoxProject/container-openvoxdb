@@ -57,6 +57,7 @@ podman pull ghcr.io/openvoxproject/openvoxdb:8.9.0-v1.2.3
 | **DNS_ALT_NAMES**                       | Additional DNS names to add to the services SSL certificate<br><br>Unset                                                                |
 | **WAITFORCERT**                         | Number of seconds to wait for certificate to be signed<br><br>`120`                                                                     |
 | **USE_OPENVOXSERVER**                    | Set to `false` to skip acquiring SSL certificates from a Puppet Server.<br><br>`true`                                                   |
+| **OPENVOXDB_CERTIFICATE_ALLOWLIST**       | Set to a comma seaprated list of allowed certnames.<br><br>`""`                                                                        |
 | **OPENVOXSERVER_HOSTNAME**               | The DNS hostname of the puppet server<br><br>`puppet`                                                                                   |
 | **OPENVOXSERVER_PORT**                   | The port of the puppet server<br><br>`8140`                                                                                             |
 | **OPENVOXDB_POSTGRES_HOSTNAME**         | The DNS hostname of the postgres service<br><br>`postgres`                                                                              |
