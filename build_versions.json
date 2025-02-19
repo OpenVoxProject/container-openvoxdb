@@ -3,6 +3,10 @@
     {
       "release": 8,
       "version": "8.9.0"
+    },
+    {
+      "release": 7,
+      "version": "7.21.1"
     }
   ]
 }
