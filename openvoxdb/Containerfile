@@ -15,17 +15,15 @@ LABEL org.label-schema.maintainer="Voxpupuli Release Team <voxpupuli@groups.io>"
       org.label-schema.vcs-ref="$vcs_ref" \
       org.label-schema.build-date="$build_date"
 
-ARG TARGETARCH
 ARG PACKAGES="ca-certificates curl dnsutils netcat-traditional dumb-init"
 
 ARG LOGDIR
 ENV LOGDIR=${LOGDIR:-/opt/puppetlabs/server/data/puppetdb/logs}
 
-ARG OPENVOX_RELEASE
-ENV OPENVOX_RELEASE=${OPENVOX_RELEASE:-8}
-
-ARG OPENVOXDB_VERSION
-ENV OPENVOXDB_VERSION=${OPENVOXDB_VERSION:-8.9.0}
+ARG UBUNTU_VERSION=24.04
+ARG OPENVOX_RELEASE=8
+ARG OPENVOXDB_VERSION=8.9.0+ubuntu${UBUNTU_VERSION}
+ARG OPENVOX_RELEASE_PACKAGE=openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb
 
 ARG SSLDIR
 ENV SSLDIR=${SSLDIR:-/opt/puppetlabs/server/data/puppetdb/certs}
@@ -42,7 +40,6 @@ ENV CERTNAME="openvoxdb" \
     OPENVOXDB_POSTGRES_PORT="5432" \
     OPENVOXDB_REPORT_TTL=14d \
     OPENVOXDB_POSTGRES_USER=openvoxdb \
-    UBUNTU_VERSION="24.04" \
     OPENVOXDB_CERTIFICATE_ALLOWLIST="" \
     USE_OPENVOXSERVER=true \
     WAITFORCERT=""
@@ -57,15 +54,14 @@ COPY docker-entrypoint.d /docker-entrypoint.d
 
 ADD https://apt.overlookinfratech.com/openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb /
 RUN apt-get update && \
-    apt-get install -y ca-certificates && \
-    dpkg -i /openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb && \
-    rm /openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb
+    apt-get install -y ca-certificates /${OPENVOX_RELEASE_PACKAGE} && \
+    rm /${OPENVOX_RELEASE_PACKAGE}
 
 RUN apt update && \
     apt upgrade -y && \
     apt install --no-install-recommends -y ${PACKAGES} && \
     chmod +x /ssl.sh /wtfc.sh /docker-entrypoint.sh /healthcheck.sh /docker-entrypoint.d/*.sh && \
-    apt install -y openvoxdb=${OPENVOXDB_VERSION}-1+ubuntu${UBUNTU_VERSION} && \
+    apt install -y openvoxdb=${OPENVOXDB_VERSION} && \
     apt autoremove -y && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \
