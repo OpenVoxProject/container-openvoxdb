@@ -16,3 +16,7 @@ if [ -w "$SSLDIR" ] && [ "$(id -un)" = "root" ]; then
   echo "Setting ownership for $SSLDIR to puppetdb:puppetdb"
   chown -R puppetdb:puppetdb ${SSLDIR}
 fi
+if [ "$USE_USER_CERTIFICATE" = true]; then
+  # enable SSL in Jetty
+  sed -i '/^# ssl-/s/^# //g' /etc/puppetlabs/puppetdb/conf.d/jetty.ini
+fi
