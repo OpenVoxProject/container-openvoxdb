@@ -56,10 +56,10 @@ podman pull ghcr.io/openvoxproject/openvoxdb:8.9.0-v1.2.3
 | **CERTNAME**                            | The DNS name used on this services SSL certificate<br><br>`openvoxdb`                                                                    |
 | **DNS_ALT_NAMES**                       | Additional DNS names to add to the services SSL certificate<br><br>Unset                                                                |
 | **WAITFORCERT**                         | Number of seconds to wait for certificate to be signed<br><br>`120`                                                                     |
-| **USE_OPENVOXSERVER**                    | Set to `false` to skip acquiring SSL certificates from a Puppet Server.<br><br>`true`                                                   |
+| **USE_OPENVOXSERVER**                    | Set to `false` to skip acquiring SSL certificates from a OpenVox Server.<br><br>`true`                                                   |
 | **OPENVOXDB_CERTIFICATE_ALLOWLIST**       | Set to a comma seaprated list of allowed certnames.<br><br>`""`                                                                        |
-| **OPENVOXSERVER_HOSTNAME**               | The DNS hostname of the puppet server<br><br>`puppet`                                                                                   |
-| **OPENVOXSERVER_PORT**                   | The port of the puppet server<br><br>`8140`                                                                                             |
+| **OPENVOXSERVER_HOSTNAME**               | The DNS hostname of the OpenVox server<br><br>`puppet`                                                                                   |
+| **OPENVOXSERVER_PORT**                   | The port of the OpenVox server<br><br>`8140`                                                                                             |
 | **OPENVOXDB_POSTGRES_HOSTNAME**         | The DNS hostname of the postgres service<br><br>`postgres`                                                                              |
 | **OPENVOXDB_POSTGRES_PORT**             | The port for postgres<br><br>`5432`                                                                                                     |
 | **OPENVOXDB_POSTGRES_DATABASE**         | The name of the openvoxdb database in postgres<br><br>`openvoxdb`                                                                         |
