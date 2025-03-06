@@ -10,10 +10,7 @@ done
 
 if [ -d /docker-custom-entrypoint.d/ ]; then
     find /docker-custom-entrypoint.d/ -type f -name "*.sh" \
-        -exec chmod +x {} \;
-    sync
-    find /docker-custom-entrypoint.d/ -type f -name "*.sh" \
-        -exec echo Running {} \; -exec {} \;
+        -exec echo Running {} \; -exec bash {} \;
 fi
 
 exec /opt/puppetlabs/bin/puppetdb "$@"
