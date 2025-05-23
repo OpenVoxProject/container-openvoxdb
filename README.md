@@ -51,26 +51,29 @@ podman pull ghcr.io/openvoxproject/openvoxdb:8.9.0-v1.2.3
 
 ## Configuration
 
-| Name                                    | Usage / Default                                                                                                                         |
-|-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| **CERTNAME**                            | The DNS name used on this services SSL certificate<br><br>`openvoxdb`                                                                    |
-| **DNS_ALT_NAMES**                       | Additional DNS names to add to the services SSL certificate<br><br>Unset                                                                |
-| **WAITFORCERT**                         | Number of seconds to wait for certificate to be signed<br><br>`120`                                                                     |
-| **USE_OPENVOXSERVER**                    | Set to `false` to skip acquiring SSL certificates from a OpenVox Server.<br><br>`true`                                                   |
-| **OPENVOXDB_CERTIFICATE_ALLOWLIST**       | Set to a comma seaprated list of allowed certnames.<br><br>`""`                                                                        |
-| **OPENVOXSERVER_HOSTNAME**               | The DNS hostname of the OpenVox server<br><br>`puppet`                                                                                   |
-| **OPENVOXSERVER_PORT**                   | The port of the OpenVox server<br><br>`8140`                                                                                             |
-| **OPENVOXDB_POSTGRES_HOSTNAME**         | The DNS hostname of the postgres service<br><br>`postgres`                                                                              |
-| **OPENVOXDB_POSTGRES_PORT**             | The port for postgres<br><br>`5432`                                                                                                     |
-| **OPENVOXDB_POSTGRES_DATABASE**         | The name of the openvoxdb database in postgres<br><br>`openvoxdb`                                                                         |
-| **OPENVOXDB_POSTGRES_USER**             | The openvoxdb database user<br><br>`openvoxdb`                                                                                            |
-| **OPENVOXDB_POSTGRES_PASSWORD**         | The openvoxdb database password<br><br>`openvoxdb`                                                                                        |
-| **OPENVOXDB_NODE_TTL**                  | Mark as ‘expired’ nodes that haven’t seen any activity (no new catalogs, facts, or reports) in the specified amount of time<br><br>`7d` |
-| **OPENVOXDB_NODE_PURGE_TTL**            | Automatically delete nodes that have been deactivated or expired for the specified amount of time<br><br>`14d`                          |
-| **OPENVOXDB_REPORT_TTL**                | Automatically delete reports that are older than the specified amount of time<br><br>`14d`                                              |
-| **OPENVOXDB_JAVA_ARGS**                 | Arguments passed directly to the JVM when starting the service<br><br>`-Djava.net.preferIPv4Stack=true -Xms256m -Xmx256m -XX:+UseParallelGC -Xlog:gc*:file=$LOGDIR/openvoxdb_gc.log -Djdk.tls.ephemeralDHKeySize=2048` |
-| **LOGDIR**                              | Path of the log directory<br><br>`/opt/puppetlabs/server/data/puppetdb/logs`                                                            |
-| **SSLDIR**                              | Path of the SSL directory<br><br>`/opt/puppetlabs/server/data/puppetdb/certs`                                                           |
+| Name                                  | Usage / Default                                                       |
+|---------------------------------------|-----------------------------------------------------------------------|
+| **CERTNAME**                          | The DNS name used on this services SSL certificate<br><br>`openvoxdb` |
+| **DNS_ALT_NAMES**                     | Additional DNS names to add to the services SSL certificate<br><br>Unset |
+| **LOGDIR**                            | Path of the log directory<br><br>`/opt/puppetlabs/server/data/puppetdb/logs` |
+| **OPENVOXDB_CERTIFICATE_ALLOWLIST**   | Set to a comma seaprated list of allowed certnames.<br><br>`""` |
+| **OPENVOXDB_JAVA_ARGS**               | Arguments passed directly to the JVM when starting the service<br><br>`-Djava.net.preferIPv4Stack=true -Xms256m -Xmx256m -XX:+UseParallelGC -Xlog:gc*:file=$LOGDIR/openvoxdb_gc.log -Djdk.tls.ephemeralDHKeySize=2048` |
+| **OPENVOXDB_NODE_PURGE_TTL**          | Automatically delete nodes that have been deactivated or expired for the specified amount of time<br><br>`14d` |
+| **OPENVOXDB_NODE_TTL**                | Mark as ‘expired’ nodes that haven’t seen any activity (no new catalogs, facts, or reports) in the specified amount of time<br><br>`7d` |
+| **OPENVOXDB_POSTGRES_DATABASE**       | The name of the openvoxdb database in postgres<br><br>`openvoxdb` |
+| **OPENVOXDB_POSTGRES_HOSTNAME**       | The DNS hostname of the postgres service<br><br>`postgres` |
+| **OPENVOXDB_POSTGRES_PASSWORD**       | The openvoxdb database password<br><br>`openvoxdb` |
+| **OPENVOXDB_POSTGRES_PORT**           | The port for postgres<br><br>`5432` |
+| **OPENVOXDB_POSTGRES_USER**           | The openvoxdb database user<br><br>`openvoxdb` |
+| **OPENVOXDB_REPORT_TTL**              | Automatically delete reports that are older than the specified amount of time<br><br>`14d` |
+| **OPENVOXDB_WAITFORHEALTH_SECONDS**   | Number of seconds to wait for OpenVoxDB to be healthy<br><br>`360` |
+| **OPENVOXDB_WAITFORHOST_SECONDS**     | Number of seconds to wait for OpenVoxDB to be available<br><br>`30` |
+| **OPENVOXDB_WAITFORPOSTGRES_SECONDS** | Number of seconds to wait for postgres to be available<br><br>`60` |
+| **OPENVOXSERVER_HOSTNAME**            | The DNS hostname of the OpenVox server<br><br>`puppet` |
+| **OPENVOXSERVER_PORT**                | The port of the OpenVox server<br><br>`8140` |
+| **SSLDIR**                            | Path of the SSL directory<br><br>`/opt/puppetlabs/server/data/puppetdb/certs` |
+| **USE_OPENVOXSERVER**                 | Set to `false` to skip acquiring SSL certificates from a OpenVox Server.<br><br>`true` |
+| **WAITFORCERT**                       | Number of seconds to wait for certificate to be signed<br><br>`120` |
 
 ### Cert File Locations
 
