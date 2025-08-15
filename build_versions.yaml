@@ -1,9 +1,5 @@
 ---
 include:
-  - release: 7
-    # renovate: depName=openvoxdb openVoxRelease=7
-    db_version: "7.21.2-1+ubuntu24.04"
-
   - release: 8
     # renovate: depName=openvoxdb openVoxRelease=8
     db_version: "8.9.1-1+ubuntu24.04"

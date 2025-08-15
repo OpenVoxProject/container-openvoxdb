@@ -42,7 +42,7 @@ podman pull ghcr.io/openvoxproject/openvoxdb:8.9.0-v1.2.3
 
 | Name | Description |
 | --- | --- |
-| openvox.major | Describes the contained major OpenVox version (7 or 8) |
+| openvox.major | Describes the contained major OpenVox version |
 | openvox.minor | Describes the contained minor OpenVox version |
 | openvox.patch | Describes the contained patchlevel OpenVox version |
 | container.major | Describes the major version of the base container (Ubunutu 24.04) or incompatible changes |
