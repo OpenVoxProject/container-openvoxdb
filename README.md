@@ -26,6 +26,14 @@ You can change configuration settings by mounting volumes containing
 configuration files or by using this image as a base image. For the defaults,
 see the [Containerfile and supporting folders](https://github.com/openvoxproject/container-openvoxdb/tree/main/openvoxdb).
 
+## Informations
+
+### End of Life for OpenVox DB 7
+
+⚠ On February 28, 2025, OpenVox/Puppet 7 entered its end-of-life phase.
+Consequently, no new OpenVox DB 7 releases will be build.
+Existing versions will be retained for continued access.
+
 ## Version schema
 
 The version schema has the following layout:
