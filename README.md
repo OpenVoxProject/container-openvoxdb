@@ -7,6 +7,8 @@
 ---
 
 - [OpenVox DB container](#openvox-db-container)
+  - [Informations](#informations)
+    - [End of Life for OpenVox DB 7](#end-of-life-for-openvox-db-7)
   - [Version schema](#version-schema)
   - [Configuration](#configuration)
     - [Cert File Locations](#cert-file-locations)
@@ -30,7 +32,7 @@ see the [Containerfile and supporting folders](https://github.com/openvoxproject
 
 ### End of Life for OpenVox DB 7
 
-⚠ On February 28, 2025, OpenVox/Puppet 7 entered its end-of-life phase.
+⚠️ On February 28, 2025, OpenVox/Puppet 7 entered its end-of-life phase.
 Consequently, no new OpenVox DB 7 releases will be build.
 Existing versions will be retained for continued access.
 
