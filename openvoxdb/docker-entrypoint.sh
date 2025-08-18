@@ -3,14 +3,7 @@
 
 set -e
 
-for f in /docker-entrypoint.d/*.sh; do
-    echo "Running $f"
-    "$f"
-done
+echoerr() { echo "$@" 1>&2; }
 
-if [ -d /docker-custom-entrypoint.d/ ]; then
-    find /docker-custom-entrypoint.d/ -type f -name "*.sh" \
-        -exec echo Running {} \; -exec bash {} \;
-fi
-
-exec /opt/puppetlabs/bin/puppetdb "$@"
+echoerr "DEPRECATED: Use /container-entrypoint.sh instead of /docker-entrypoint.sh"
+exec ./container-entrypoint.sh "$@"
