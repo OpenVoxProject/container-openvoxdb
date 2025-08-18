@@ -50,11 +50,12 @@ ENV \
 
 ADD ssl.sh \
     wtfc.sh \
+    container-entrypoint.sh \
     docker-entrypoint.sh \
     healthcheck.sh \
     /
 
-COPY docker-entrypoint.d /docker-entrypoint.d
+COPY container-entrypoint.d /container-entrypoint.d
 
 ADD https://apt.overlookinfratech.com/openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb /
 RUN apt-get update && \
@@ -64,7 +65,7 @@ RUN apt-get update && \
 RUN apt update && \
     apt upgrade -y && \
     apt install --no-install-recommends -y ${PACKAGES} && \
-    chmod +x /ssl.sh /wtfc.sh /docker-entrypoint.sh /healthcheck.sh /docker-entrypoint.d/*.sh && \
+    chmod +x /ssl.sh /wtfc.sh /container-entrypoint.sh /docker-entrypoint.sh /healthcheck.sh /container-entrypoint.d/*.sh && \
     apt install -y openvoxdb=${OPENVOXDB_VERSION} && \
     apt autoremove -y && \
     apt clean && \
@@ -92,5 +93,5 @@ HEALTHCHECK --start-period=5m --interval=10s --timeout=10s --retries=6 CMD ["/he
 # NOTE: this is just documentation on defaults
 EXPOSE 8080 8081
 
-ENTRYPOINT ["dumb-init", "/docker-entrypoint.sh"]
+ENTRYPOINT ["dumb-init", "/container-entrypoint.sh"]
 CMD ["foreground"]
