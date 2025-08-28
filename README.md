@@ -67,7 +67,7 @@ podman pull ghcr.io/openvoxproject/openvoxdb:8.9.0-v1.2.3
 | **DNS_ALT_NAMES**                     | Additional DNS names to add to the services SSL certificate<br><br>Unset |
 | **LOGDIR**                            | Path of the log directory<br><br>`/opt/puppetlabs/server/data/puppetdb/logs` |
 | **OPENVOXDB_CERTIFICATE_ALLOWLIST**   | Set to a comma seaprated list of allowed certnames.<br><br>`""` |
-| **OPENVOXDB_JAVA_ARGS**               | Arguments passed directly to the JVM when starting the service<br><br>`-Djava.net.preferIPv4Stack=true -Xms256m -Xmx256m -XX:+UseParallelGC -Xlog:gc*:file=$LOGDIR/openvoxdb_gc.log -Djdk.tls.ephemeralDHKeySize=2048` |
+| **OPENVOXDB_JAVA_ARGS**               | Arguments passed directly to the JVM when starting the service<br><br>`-Djava.net.preferIPv4Stack=true -Xms256m -Xmx256m -XX:+UseParallelGC -Xlog:gc*:file=$LOGDIR/openvoxdb_gc.log -Djdk.tls.ephemeralDHKeySize=2048` | <!-- markdownlint-disable-line -->
 | **OPENVOXDB_NODE_PURGE_TTL**          | Automatically delete nodes that have been deactivated or expired for the specified amount of time<br><br>`14d` |
 | **OPENVOXDB_NODE_TTL**                | Mark as ‘expired’ nodes that haven’t seen any activity (no new catalogs, facts, or reports) in the specified amount of time<br><br>`7d` |
 | **OPENVOXDB_POSTGRES_DATABASE**       | The name of the openvoxdb database in postgres<br><br>`openvoxdb` |

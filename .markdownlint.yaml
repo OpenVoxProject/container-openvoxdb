@@ -1,0 +1,14 @@
+---
+# Managed by modulesync - DO NOT EDIT
+# https://voxpupuli.org/docs/updating-files-managed-with-modulesync/
+
+default: true
+
+line-length:
+  line_length: 210
+
+no-inline-html:
+  allowed_elements:
+    - br
+
+descriptive-link-text: false
