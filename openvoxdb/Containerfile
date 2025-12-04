@@ -87,6 +87,29 @@ COPY Containerfile /
 # up in the worst case. The other timing parameters are set so that it
 # takes at most a minute to realize that PuppetDB has failed.
 # Probe failure during --start-period will not be counted towards the maximum number of retries
+
+# mirror user permissions to group, set group to root, and set gid bit on dirs
+RUN for d in \
+    /etc/puppetlabs \
+    /var/log/puppetlabs \
+    /var/run/puppetlabs \
+    /opt/puppetlabs/ \
+  ; do \
+    mkdir -p "$d"; \
+    chgrp -R 0 "$d"; \
+    chmod -R g=u "$d"; \
+    find "$d" -type d -exec chmod g+s {} +; \
+  done
+
+# the startup script has a check if the current user is puppetdb, this won't work with arbitrary UIDs
+# we can workaround the check by not setting a USER
+RUN sed -i 's/^USER="puppetdb"/USER=""/' /etc/default/puppetdb
+USER puppetdb:0
+
+# the foreground script that starts puppetdb tries to install a restartfile with a certain user.
+# we don't need it in a container and it also is incompatible with arbitrary UIDs
+RUN sed -i 's/^init_restart_file/#init_restart_file/' /opt/puppetlabs/server/apps/puppetdb/cli/apps/foreground
+
 # NOTE: k8s uses livenessProbe, startupProbe, readinessProbe and ignores HEALTHCHECK
 HEALTHCHECK --start-period=5m --interval=10s --timeout=10s --retries=6 CMD ["/healthcheck.sh"]
 
