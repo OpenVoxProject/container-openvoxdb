@@ -15,6 +15,7 @@ LABEL org.label-schema.maintainer="Voxpupuli Release Team <voxpupuli@groups.io>"
       org.label-schema.vcs-ref="$vcs_ref" \
       org.label-schema.build-date="$build_date"
 
+# Use netcat-openbsd to support IPv6 connectivity checks (netcat-traditional is IPv4 only)
 ARG PACKAGES="ca-certificates curl dnsutils netcat-openbsd dumb-init"
 
 ARG LOGDIR
