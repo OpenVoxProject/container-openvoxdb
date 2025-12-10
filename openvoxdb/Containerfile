@@ -15,7 +15,7 @@ LABEL org.label-schema.maintainer="Voxpupuli Release Team <voxpupuli@groups.io>"
       org.label-schema.vcs-ref="$vcs_ref" \
       org.label-schema.build-date="$build_date"
 
-ARG PACKAGES="ca-certificates curl dnsutils netcat-traditional dumb-init"
+ARG PACKAGES="ca-certificates curl dnsutils netcat-openbsd dumb-init"
 
 ARG LOGDIR
 ENV LOGDIR=${LOGDIR:-/opt/puppetlabs/server/data/puppetdb/logs}
