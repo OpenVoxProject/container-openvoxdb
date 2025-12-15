@@ -2,7 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.0.0](https://github.com/openvoxproject/container-openvoxdb/tree/v1.0.0) (2025-08-01)
+## [v1.1.0](https://github.com/openvoxproject/container-openvoxdb/tree/v1.1.0) (2025-12-15)
+
+[Full Changelog](https://github.com/openvoxproject/container-openvoxdb/compare/v1.0.0...v1.1.0)
+
+**Implemented enhancements:**
+
+- Rename docker-entrypoint to container-entrypoint [\#34](https://github.com/OpenVoxProject/container-openvoxdb/pull/34) ([Sebastian-Maier](https://github.com/Sebastian-Maier))
+- feat: drop build of OpenVox 7.x images [\#31](https://github.com/OpenVoxProject/container-openvoxdb/pull/31) ([rwaffen](https://github.com/rwaffen))
+
+**Fixed bugs:**
+
+- \[Bug\]: openvoxdb not working in IPv6-only OKD cluster [\#55](https://github.com/OpenVoxProject/container-openvoxdb/issues/55)
+- \[Bug\]: Mismatch between documented default value and actual default value [\#36](https://github.com/OpenVoxProject/container-openvoxdb/issues/36)
+- Change netcat package from traditional to openbsd [\#54](https://github.com/OpenVoxProject/container-openvoxdb/pull/54) ([xhochn](https://github.com/xhochn))
+- Modify host command in wait-for-hosts.sh [\#52](https://github.com/OpenVoxProject/container-openvoxdb/pull/52) ([xhochn](https://github.com/xhochn))
+- fix: old package version. prevented building. [\#49](https://github.com/OpenVoxProject/container-openvoxdb/pull/49) ([dotconfig404](https://github.com/dotconfig404))
+- fix: set WAITFORCERT to default of 120 as in the documentation [\#37](https://github.com/OpenVoxProject/container-openvoxdb/pull/37) ([rwaffen](https://github.com/rwaffen))
+
+**Merged pull requests:**
+
+- chore\(deps\): update davidanson/markdownlint-cli2-action action to v22 [\#53](https://github.com/OpenVoxProject/container-openvoxdb/pull/53) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/checkout action to v6 [\#48](https://github.com/OpenVoxProject/container-openvoxdb/pull/48) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(docs\): correct typos and formatting in README.md [\#47](https://github.com/OpenVoxProject/container-openvoxdb/pull/47) ([rwaffen](https://github.com/rwaffen))
+- chore\(deps\): update davidanson/markdownlint-cli2-action action to v21 [\#46](https://github.com/OpenVoxProject/container-openvoxdb/pull/46) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update github/codeql-action action to v4 [\#44](https://github.com/OpenVoxProject/container-openvoxdb/pull/44) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update anchore/scan-action action to v7 [\#41](https://github.com/OpenVoxProject/container-openvoxdb/pull/41) ([renovate[bot]](https://github.com/apps/renovate))
+- docs: update README ToC + emoji [\#33](https://github.com/OpenVoxProject/container-openvoxdb/pull/33) ([rwaffen](https://github.com/rwaffen))
+- docs: document dropping of openvox 7 [\#32](https://github.com/OpenVoxProject/container-openvoxdb/pull/32) ([rwaffen](https://github.com/rwaffen))
+
+## [v1.0.0](https://github.com/openvoxproject/container-openvoxdb/tree/v1.0.0) (2025-08-15)
 
 [Full Changelog](https://github.com/openvoxproject/container-openvoxdb/compare/67071737b05a8b0c7fab79141da8a4680a957d62...v1.0.0)
 
