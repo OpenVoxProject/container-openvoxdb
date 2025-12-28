@@ -16,7 +16,7 @@ LABEL org.label-schema.maintainer="Voxpupuli Release Team <voxpupuli@groups.io>"
       org.label-schema.build-date="$build_date"
 
 # Use netcat-openbsd to support IPv6 connectivity checks (netcat-traditional is IPv4 only)
-ARG PACKAGES="ca-certificates curl dnsutils netcat-openbsd dumb-init"
+ARG PACKAGES="ca-certificates curl dumb-init postgresql-client postgresql-client-common"
 
 ARG LOGDIR
 ENV LOGDIR=${LOGDIR:-/opt/puppetlabs/server/data/puppetdb/logs}
