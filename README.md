@@ -20,10 +20,10 @@
 
 This project hosts the Containerfile and the required scripts to build a OpenVoxDB container image.
 
-For compose file see: [CRAFTY](https://github.com/voxpupuli/crafty/tree/main/puppet/oss)
+For compose file see: [CRAFTY](https://github.com/voxpupuli/crafty/tree/main/openvox/oss/)
 
 The OpenVoxDB container requires a working postgres container or other suitably
-configured PostgreSQL database. For a Compose example see the [CRAFTY OSS Demo compose.yaml](https://github.com/voxpupuli/crafty/blob/main/puppet/oss/compose.yaml)
+configured PostgreSQL database. For a Compose example see the [CRAFTY OSS Demo compose.yaml](https://github.com/voxpupuli/crafty/blob/main/openvox/oss/compose.yaml)
 
 You can change configuration settings by mounting volumes containing
 configuration files or by using this image as a base image. For the defaults,
