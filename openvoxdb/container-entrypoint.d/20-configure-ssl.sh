@@ -10,9 +10,3 @@ if [ "$USE_OPENVOXSERVER" = true ]; then
   # enable SSL in Jetty
   sed -i '/^# ssl-/s/^# //g' /etc/puppetlabs/puppetdb/conf.d/jetty.ini
 fi
-
-if [ -w "$SSLDIR" ] && [ "$(id -un)" = "root" ]; then
-  # make sure Java apps running as puppetdb can read these files
-  echo "Setting ownership for $SSLDIR to puppetdb:puppetdb"
-  chown -R puppetdb:puppetdb ${SSLDIR}
-fi
