@@ -55,7 +55,7 @@ jobs:
 
 
       - name: Build image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           tags: 'ci/openvoxdb:${{ steps.extract_version.outputs.version }}'
           context: openvoxdb
