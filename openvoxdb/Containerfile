@@ -58,7 +58,7 @@ ADD ssl.sh \
 
 COPY container-entrypoint.d /container-entrypoint.d
 
-ADD https://apt.overlookinfratech.com/openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb /
+ADD https://apt.voxpupuli.org/openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb /
 RUN apt-get update && \
     apt-get install -y ca-certificates /${OPENVOX_RELEASE_PACKAGE} && \
     rm /${OPENVOX_RELEASE_PACKAGE}
