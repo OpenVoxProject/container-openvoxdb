@@ -152,14 +152,6 @@ ca_running() {
         httpsreq_insecure "$(get "${CA}/certificate/ca")" > /dev/null
 }
 
-set_file_perms() {
-    msg "Securing permissions on ${SSLDIR}"
-
-    # 700 for directories, 600 for files
-    find "${SSLDIR}/." -type d -exec chmod u=rwx,g=,o= -- {} +
-    find "${SSLDIR}/." -type f -exec chmod u=rw,g=,o= -- {} +
-}
-
 ### Verify we got a signed certificate
 verify_cert() {
     if [ -f "${CERTFILE}" ] && [ "$(head -1 "${CERTFILE}")" = "${CERTHEADER}" ]; then
@@ -260,7 +252,6 @@ msg "* WAITFORCERT: '${WAITFORCERT}' seconds"
 certnames=$(cd "${PRIVKEYDIR}" && ls -A -m -- *.pem 2> /dev/null)
 if [ -s "${CERTFILE}" ]; then
     msg "Certificates (${certnames}) have already been generated - exiting!"
-    set_file_perms
     exit 0
 # warn when rekeying an existing host as it's typically user error
 elif [ -n "${certnames}" ]; then
@@ -372,7 +363,5 @@ if ! cert=$(retry_httpsreq "$CERTREQ" $((WAITFORCERT)) 10); then
     error "timed-out waiting for certificate to be signed"
 fi
 printf "%s\n" "${cert}" > "${CERTFILE}"
-
-set_file_perms
 
 verify_cert
