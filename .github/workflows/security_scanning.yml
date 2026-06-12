@@ -9,11 +9,18 @@ on:
     branches:
       - main
 
+concurrency:
+  group: security-scanning-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read # minimal required permissions to clone repo
+
 jobs:
   setup-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      build_matrix: ${{ steps.set-build-matrix.outputs.build_matrix }}
     steps:
       - name: Source checkout
         uses: actions/checkout@v6
@@ -21,49 +28,44 @@ jobs:
       - name: 'Setup yq'
         uses: dcarbone/install-yq-action@v1.3.1
 
-      - id: set-matrix
-        run: echo "matrix=$(yq -o json build_versions.yaml | jq -c)" >> $GITHUB_OUTPUT
+      - id: set-build-matrix
+        run: echo "build_matrix=$(bash matrix.sh build)" >> $GITHUB_OUTPUT
 
   scan_ci_container:
-    name: 'Scan CI container'
-    runs-on: ubuntu-latest
+    name: 'Scan ${{ matrix.os }} / ${{ matrix.platform }} CI container'
+    runs-on: ${{ matrix.runner }}
     permissions:
       actions: read
       contents: read
       security-events: write
     needs: setup-matrix
     strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+      fail-fast: false
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.build_matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Extract version number
-        id: extract_version
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const agentVersion = '${{ matrix.db_version }}';
-            const version = agentVersion.split('-')[0];
-            core.setOutput('version', version);
-
-
-      - name: Build CI container
+      - name: Build ${{ matrix.os }} / ${{ matrix.platform }} CI container
         uses: docker/build-push-action@v7
         with:
-          tags: 'ci/openvoxdb:${{ steps.extract_version.outputs.version }}'
-          context: openvoxdb
-          file: openvoxdb/Containerfile
+          tags: ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}
+          context: .
+          file: Containerfile.${{ matrix.os }}
+          load: true
           push: false
+          platforms: linux/${{ matrix.platform }}
           build-args: |
             OPENVOX_RELEASE=${{ matrix.release }}
             OPENVOXDB_VERSION=${{ matrix.db_version }}
+            JDK_VERSION=${{ matrix.jdk_version }}
+            PQL_VERSION=${{ matrix.pql_version }}
 
       - name: Scan image with Anchore Grype
         uses: anchore/scan-action@v7
         id: scan
         with:
-          image: 'ci/openvoxdb:${{ steps.extract_version.outputs.version }}'
+          image: 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
           fail-build: false
 
       - name: Inspect action SARIF report
@@ -73,3 +75,4 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
+          category: grype-${{ matrix.os }}-${{ matrix.platform }}
