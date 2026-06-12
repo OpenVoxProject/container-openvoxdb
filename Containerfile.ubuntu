@@ -18,8 +18,9 @@ ARG PACKAGES="ca-certificates curl dumb-init postgresql-client postgresql-client
 ARG LOGDIR
 ENV LOGDIR=${LOGDIR:-/opt/puppetlabs/server/data/puppetdb/logs}
 
-ARG UBUNTU_VERSION=26.04
+ARG UBUNTU_VERSION
 ARG OPENVOX_RELEASE=8
+# renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
 ARG OPENVOXDB_VERSION=8.13.0
 ARG OPENVOX_RELEASE_PACKAGE=openvox${OPENVOX_RELEASE}-release-ubuntu${UBUNTU_VERSION}.deb
 
@@ -76,7 +77,7 @@ RUN apt update \
     && rm -f /etc/puppetlabs/puppetdb/conf.d/database.ini \
     && rm -f /etc/puppetlabs/puppetdb/conf.d/config.ini
 
-# In the openvoxserver/files directory, we have some files that need to be copied to the final image.
+# In the openvoxdb/files directory, we have some files that need to be copied to the final image.
 # However, instead of copying them file by file, we create a file hierarchy similar to the system root
 # and copy the entire directory directly into the system root.
 COPY openvoxdb/files /
