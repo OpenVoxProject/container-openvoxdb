@@ -1,0 +1,92 @@
+FROM alpine:3.24 AS base
+
+# Install JDK
+ARG JDK_VERSION=21
+ARG PQL_VERSION=17
+RUN apk update && apk upgrade \
+    && apk add --no-cache openjdk${JDK_VERSION}-jre-headless bash tar xz postgresql${PQL_VERSION}-client \
+    && rm -rf /var/cache/apk/*
+
+################################################################################
+
+FROM base AS build
+
+# renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
+ARG OPENVOXDB_VERSION=8.13.0
+
+ADD https://artifacts.voxpupuli.org/openvoxdb/${OPENVOXDB_VERSION}/openvoxdb-${OPENVOXDB_VERSION}.tar.gz /
+
+COPY openvoxdb/prep_build_container.sh /
+RUN /prep_build_container.sh
+
+################################################################################
+
+FROM base AS final
+
+# renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
+ARG OPENVOXDB_VERSION=8.13.0
+ENV OPENVOXDB_VERSION=${OPENVOXDB_VERSION}
+
+LABEL org.label-schema.dockerfile="/Containerfile" \
+      org.label-schema.license="AGPLv3+" \
+      org.label-schema.maintainer="Voxpupuli Team <voxpupuli@groups.io>" \
+      org.label-schema.name="OpenVox DB" \
+      org.label-schema.schema-version="1.0" \
+      org.label-schema.url="https://github.com/OpenVoxProject/container-openvoxdb" \
+      org.label-schema.vcs-url="https://github.com/OpenVoxProject/container-openvoxdb" \
+      org.label-schema.vendor="OpenVoxProject" \
+      org.label-schema.version="$OPENVOXDB_VERSION"
+
+ARG LOGDIR
+ENV LOGDIR=${LOGDIR:-/opt/puppetlabs/server/data/puppetdb/logs}
+
+ARG SSLDIR
+ENV SSLDIR=${SSLDIR:-/opt/puppetlabs/server/data/puppetdb/certs}
+
+ENV CERTNAME="openvoxdb" \
+    DEBIAN_FRONTEND=noninteractive \
+    DNS_ALT_NAMES="" \
+    OPENVOXDB_CERTIFICATE_ALLOWLIST="" \
+    OPENVOXDB_JAVA_ARGS="-Djava.net.preferIPv4Stack=true -Xms256m -Xmx256m -XX:+UseParallelGC -Xlog:gc*:file=${LOGDIR}/puppetdb_gc.log -Djdk.tls.ephemeralDHKeySize=2048" \
+    OPENVOXDB_NODE_PURGE_TTL="14d" \
+    OPENVOXDB_NODE_TTL="7d" \
+    OPENVOXDB_POSTGRES_DATABASE="openvoxdb" \
+    OPENVOXDB_POSTGRES_HOSTNAME="postgres" \
+    OPENVOXDB_POSTGRES_PASSWORD="openvoxdb" \
+    OPENVOXDB_POSTGRES_PORT="5432" \
+    OPENVOXDB_POSTGRES_USER="openvoxdb" \
+    OPENVOXDB_REPORT_TTL="14d" \
+    OPENVOXDB_WAITFORHEALTH_SECONDS="360" \
+    OPENVOXDB_WAITFORHOST_SECONDS="30" \
+    OPENVOXDB_WAITFORPOSTGRES_SECONDS="60" \
+    USE_OPENVOXSERVER=true \
+    WAITFORCERT="120"
+
+# explicitly set HOME: random UIDs will cause HOME to be "/" generally
+ENV HOME=/opt/puppetlabs/db/data/puppetdb
+
+COPY --from=build /etc/logrotate.d    /etc/logrotate.d
+COPY --from=build /etc/puppetlabs     /etc/puppetlabs
+COPY --from=build /opt/puppetlabs     /opt/puppetlabs
+COPY --from=build /var/log/puppetlabs /var/log/puppetlabs
+COPY --from=build /var/run/puppetlabs /var/run/puppetlabs
+
+# In the openvoxdb/files directory, we have some files that need to be copied to the final image.
+# However, instead of copying them file by file, we create a file hierarchy similar to the system root
+# and copy the entire directory directly into the system root.
+COPY openvoxdb/files /
+
+COPY openvoxdb/prep_release_container.sh /
+COPY Containerfile.alpine /Containerfile
+
+RUN /prep_release_container.sh
+
+USER puppetdb:0
+
+# k8s uses livenessProbe, startupProbe, readinessProbe and ignores HEALTHCHECK
+HEALTHCHECK --interval=20s --timeout=15s --retries=12 --start-period=3m CMD ["/healthcheck.sh"]
+
+EXPOSE 8081
+
+ENTRYPOINT ["dumb-init", "/container-entrypoint.sh"]
+CMD ["foreground"]

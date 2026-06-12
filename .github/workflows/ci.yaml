@@ -1,17 +1,24 @@
 ---
-name: CI🚦
+name: 🚦 CI
 
 on:
   pull_request:
     branches:
-      - main
+      - 'main'
   workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read # minimal required permissions to clone repo
 
 jobs:
   setup-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      build_matrix: ${{ steps.set-build-matrix.outputs.build_matrix }}
     steps:
       - name: Source checkout
         uses: actions/checkout@v6
@@ -19,56 +26,47 @@ jobs:
       - name: 'Setup yq'
         uses: dcarbone/install-yq-action@v1.3.1
 
-      - id: set-matrix
-        run: echo "matrix=$(yq -o json build_versions.yaml | jq -c)" >> $GITHUB_OUTPUT
+      - id: set-build-matrix
+        run: echo "build_matrix=$(bash matrix.sh build)" >> $GITHUB_OUTPUT
 
   general_ci:
     permissions:
-      # required for all workflows
       security-events: write
-
-      # only required for workflows in private repositories
       actions: read
       contents: read
     uses: voxpupuli/crafty/.github/workflows/general_ci.yaml@main
     with:
       shellcheck_scan_dir: './openvoxdb'
 
-  build_test_container:
-    name: 'Build test container'
-    runs-on: ubuntu-latest
+  build_ci_container:
+    name: Build ${{ matrix.os }} / ${{ matrix.platform }} CI container
+    runs-on: ${{ matrix.runner }}
     needs: setup-matrix
     strategy:
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix) }}
+      fail-fast: false
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.build_matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Extract version number
-        id: extract_version
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const agentVersion = '${{ matrix.db_version }}';
-            const version = agentVersion.split('-')[0];
-            core.setOutput('version', version);
-
-
-      - name: Build image
+      - name: Build ${{ matrix.os }} / ${{ matrix.platform }} CI container
         uses: docker/build-push-action@v7
         with:
-          tags: 'ci/openvoxdb:${{ steps.extract_version.outputs.version }}'
-          context: openvoxdb
-          file: openvoxdb/Containerfile
+          tags: ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}
+          context: .
+          file: Containerfile.${{ matrix.os }}
           push: false
+          platforms: linux/${{ matrix.platform }}
           build-args: |
             OPENVOX_RELEASE=${{ matrix.release }}
             OPENVOXDB_VERSION=${{ matrix.db_version }}
+            JDK_VERSION=${{ matrix.jdk_version }}
+            PQL_VERSION=${{ matrix.pql_version }}
 
   tests:
     needs:
       - general_ci
-      - build_test_container
+      - build_ci_container
     runs-on: ubuntu-latest
     name: Test suite
     steps:
@@ -77,11 +75,12 @@ jobs:
   dependabot:
     permissions:
       contents: write
+      pull-requests: write
     name: 'Dependabot auto-merge'
     needs:
       - tests
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}}
+    if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'
     steps:
       - name: Dependabot metadata
         id: metadata
@@ -93,4 +92,4 @@ jobs:
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}

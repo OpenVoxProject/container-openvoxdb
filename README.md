@@ -27,7 +27,7 @@ configured PostgreSQL database. For a Compose example see the [CRAFTY OSS Demo c
 
 You can change configuration settings by mounting volumes containing
 configuration files or by using this image as a base image. For the defaults,
-see the [Containerfile and supporting folders](https://github.com/openvoxproject/container-openvoxdb/tree/main/openvoxdb).
+see the [Containerfiles and supporting folders](https://github.com/openvoxproject/container-openvoxdb).
 
 ## Informations
 
@@ -39,26 +39,34 @@ Existing versions will be retained for continued access.
 
 ## Version schema
 
-The version schema has the following layout:
+Images are published to `ghcr.io/openvoxproject/openvoxdb` and
+`docker.io/voxpupuli/openvoxdb`. Ubuntu is the default image variant and
+therefore has no operating system suffix. Alpine images use the `-alpine`
+suffix.
 
-```text
-<openvox.major>.<openvox.minor>.<openvox.patch>-v<container.major>.<container.minor>.<container.patch>
-```
+| Tag | Example | Description |
+| --- | --- | --- |
+| `<openvoxdb.version>-v<container.version>` | `8.13.0-v1.2.3` | Immutable Ubuntu container release |
+| `<openvoxdb.version>-v<container.version>-alpine` | `8.13.0-v1.2.3-alpine` | Immutable Alpine container release |
+| `<openvoxdb.version>` | `8.13.0` | Latest build for an OpenVoxDB version, using Ubuntu |
+| `<openvoxdb.version>-alpine` | `8.13.0-alpine` | Latest Alpine build for an OpenVoxDB version |
+| `<openvoxdb.major>` | `8` | Latest build for an OpenVoxDB major version, using Ubuntu |
+| `<openvoxdb.major>-alpine` | `8-alpine` | Latest Alpine build for an OpenVoxDB major version |
+| `latest` | `latest` | Latest Ubuntu build from the `main` branch |
+| `latest-alpine` | `latest-alpine` | Latest Alpine build from the `main` branch |
 
-Example usage:
+Builds from the `main` branch are additionally tagged as
+`<openvoxdb.version>-main` and `<openvoxdb.version>-main-alpine`.
+
+Example using an immutable container release:
 
 ```shell
-podman pull ghcr.io/openvoxproject/openvoxdb:8.9.0-v1.2.3
+podman pull ghcr.io/openvoxproject/openvoxdb:8.13.0-v1.2.3
 ```
 
-| Name            | Description                                                                               |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| openvox.major   | Describes the contained major OpenVox version                                             |
-| openvox.minor   | Describes the contained minor OpenVox version                                             |
-| openvox.patch   | Describes the contained patchlevel OpenVox version                                        |
-| container.major | Describes the major version of the base container (Ubunutu 24.04) or incompatible changes |
-| container.minor | Describes new features or refactoring with backward compatibility                         |
-| container.patch | Describes if minor changes or bugfixes have been implemented                              |
+The OpenVoxDB version describes the database version contained in the image.
+The container version follows semantic versioning and describes changes to the
+container image independently of the OpenVoxDB version.
 
 ## Configuration
 
