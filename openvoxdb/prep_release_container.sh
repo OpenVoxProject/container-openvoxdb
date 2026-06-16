@@ -4,11 +4,17 @@ set -e
 
 if command -v apk > /dev/null 2>&1; then
   apk update
-  apk add --no-cache dumb-init runuser coreutils gcompat
+  apk add --no-cache \
+    curl \
+    dumb-init \
+    runuser \
+    coreutils \
+    gcompat
 elif command -v apt-get > /dev/null 2>&1; then
   apt-get update
   apt-get install -y --no-install-recommends \
     coreutils \
+    curl \
     dumb-init \
     util-linux
   apt-get clean
