@@ -63,7 +63,7 @@ ENV CERTNAME="openvoxdb" \
     WAITFORCERT="120"
 
 # explicitly set HOME: random UIDs will cause HOME to be "/" generally
-ENV HOME=/opt/puppetlabs/db/data/puppetdb
+ENV HOME=/opt/puppetlabs/server/data/puppetdb
 
 COPY --from=build /etc/logrotate.d    /etc/logrotate.d
 COPY --from=build /etc/puppetlabs     /etc/puppetlabs
