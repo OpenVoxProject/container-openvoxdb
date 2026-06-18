@@ -1,20 +1,52 @@
 #!/usr/bin/env bash
 
-apk update
-apk add --no-cache dumb-init runuser coreutils gcompat
+set -e
+
+if command -v apk > /dev/null 2>&1; then
+  apk update
+  apk add --no-cache \
+    curl \
+    dumb-init \
+    runuser \
+    coreutils \
+    gcompat
+elif command -v apt-get > /dev/null 2>&1; then
+  apt-get update
+  apt-get install -y --no-install-recommends \
+    coreutils \
+    curl \
+    dumb-init \
+    util-linux
+  apt-get clean
+  rm -rf /var/lib/apt/lists/*
+else
+  echo "Unsupported package manager" >&2
+  exit 1
+fi
 
 # Create puppet user and group, and set permissions on necessary directories
 # Used for rootless execution of the container and to match permissions expected by Puppet Server
-addgroup -g 1001 puppetdb
-adduser -G puppetdb -u 1001 -h /opt/puppetlabs/server/data/puppetdb -H -D -s /sbin/nologin puppetdb
+if command -v apk > /dev/null 2>&1; then
+  addgroup -g 1001 puppetdb
+  adduser -G puppetdb -u 1001 -h /opt/puppetlabs/server/data/puppetdb -H -D -s /sbin/nologin puppetdb
+else
+  groupadd --gid 1001 puppetdb
+  useradd \
+    --gid puppetdb \
+    --home-dir /opt/puppetlabs/server/data/puppetdb \
+    --no-create-home \
+    --shell /usr/sbin/nologin \
+    --uid 1001 \
+    puppetdb
+fi
 
-mkdir -p $LOGDIR
+mkdir -p "$LOGDIR"
 
 chown -R puppetdb:puppetdb /etc/puppetlabs/puppetdb
 chown -R puppetdb:puppetdb /opt/puppetlabs/server/data/puppetdb
 chown -R puppetdb:puppetdb /var/log/puppetlabs/puppetdb
 chown -R puppetdb:puppetdb /var/run/puppetlabs/puppetdb
-chown -R puppetdb:puppetdb $LOGDIR
+chown -R puppetdb:puppetdb "$LOGDIR"
 
 # We want to use the HOCON database.conf and config.conf files, so get rid of the packaged files
 rm -f /etc/puppetlabs/puppetdb/conf.d/database.ini
