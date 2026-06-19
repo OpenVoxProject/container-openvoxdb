@@ -1,0 +1,15 @@
+---
+.github/workflows/ci.yml:
+  matrix_command: bash matrix.sh build
+  matrix_requires_yq: true
+  general_ci_scan_dir: ./openvoxdb
+  build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'
+  build_runner: '${{ matrix.runner }}'
+  build_file: 'Containerfile.${{ matrix.os }}'
+  image_tag: 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+  build_platforms: 'linux/${{ matrix.platform }}'
+  build_args:
+    - 'OPENVOX_RELEASE=${{ matrix.release }}'
+    - 'OPENVOXDB_VERSION=${{ matrix.db_version }}'
+    - 'JDK_VERSION=${{ matrix.jdk_version }}'
+    - 'PQL_VERSION=${{ matrix.pql_version }}'
