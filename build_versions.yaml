@@ -2,6 +2,6 @@
 include:
   - release: "8"
     # renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
-    db_version: "8.14.0"
+    db_version: "8.14.1"
     jdk_version: "21"
     pql_version: "17"

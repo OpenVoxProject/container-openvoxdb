@@ -12,7 +12,7 @@ RUN apk update && apk upgrade \
 FROM base AS build
 
 # renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
-ARG OPENVOXDB_VERSION=8.14.0
+ARG OPENVOXDB_VERSION=8.14.1
 
 ADD https://artifacts.voxpupuli.org/openvoxdb/${OPENVOXDB_VERSION}/openvoxdb-${OPENVOXDB_VERSION}.tar.gz /
 
@@ -24,7 +24,7 @@ RUN /prep_build_container.sh
 FROM base AS final
 
 # renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
-ARG OPENVOXDB_VERSION=8.14.0
+ARG OPENVOXDB_VERSION=8.14.1
 ENV OPENVOXDB_VERSION=${OPENVOXDB_VERSION}
 
 LABEL org.label-schema.dockerfile="/Containerfile" \
