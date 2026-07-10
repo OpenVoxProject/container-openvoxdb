@@ -27,16 +27,16 @@ fi
 # Create puppet user and group, and set permissions on necessary directories
 # Used for rootless execution of the container and to match permissions expected by Puppet Server
 if command -v apk > /dev/null 2>&1; then
-  addgroup -g 1001 puppetdb
-  adduser -G puppetdb -u 1001 -h /opt/puppetlabs/server/data/puppetdb -H -D -s /sbin/nologin puppetdb
+  addgroup -g 64604 puppetdb
+  adduser -G puppetdb -u 64604 -h /opt/puppetlabs/server/data/puppetdb -H -D -s /sbin/nologin puppetdb
 else
-  groupadd --gid 1001 puppetdb
+  groupadd --gid 64604 puppetdb
   useradd \
     --gid puppetdb \
     --home-dir /opt/puppetlabs/server/data/puppetdb \
     --no-create-home \
     --shell /usr/sbin/nologin \
-    --uid 1001 \
+    --uid 64604 \
     puppetdb
 fi
 
