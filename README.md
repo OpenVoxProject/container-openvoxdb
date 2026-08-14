@@ -11,6 +11,7 @@
     - [End of Life for OpenVox DB 7](#end-of-life-for-openvox-db-7)
     - [Migration](#migration)
   - [Version schema](#version-schema)
+  - [Permissions](#permissions)
   - [Configuration](#configuration)
     - [Cert File Locations](#cert-file-locations)
   - [Initialization Scripts](#initialization-scripts)
@@ -72,6 +73,17 @@ podman pull ghcr.io/openvoxproject/openvoxdb:8.13.0-v1.2.3
 The OpenVoxDB version describes the database version contained in the image.
 The container version follows semantic versioning and describes changes to the
 container image independently of the OpenVoxDB version.
+
+## Permissions
+
+The image runs with GID 0 and supports any runtime UID. GID 0 is what allows 
+file access. 
+
+Volumes can be adjusted to it via:
+
+```shell
+chgrp -R 0 <dir> && chmod -R g+rwX <dir>
+```
 
 ## Configuration
 

@@ -24,29 +24,26 @@ else
   exit 1
 fi
 
-# Create puppet user and group, and set permissions on necessary directories
-# Used for rootless execution of the container and to match permissions expected by Puppet Server
-if command -v apk > /dev/null 2>&1; then
-  addgroup -g 64604 puppetdb
-  adduser -G puppetdb -u 64604 -h /opt/puppetlabs/server/data/puppetdb -H -D -s /sbin/nologin puppetdb
-else
-  groupadd --gid 64604 puppetdb
-  useradd \
-    --gid puppetdb \
-    --home-dir /opt/puppetlabs/server/data/puppetdb \
-    --no-create-home \
-    --shell /usr/sbin/nologin \
-    --uid 64604 \
-    puppetdb
-fi
+# The container runs as UID 64604 by default, but any UID works. Everything the
+# server needs to write is root-owned with group 0 mirroring the owner permissions
+mkdir -p "$LOGDIR" "$SSLDIR"
 
-mkdir -p "$LOGDIR"
+chown -R 0:0 /etc/puppetlabs/puppetdb
+chown -R 0:0 /opt/puppetlabs/server/data/puppetdb
+chown -R 0:0 /var/log/puppetlabs/puppetdb
+chown -R 0:0 /var/run/puppetlabs/puppetdb
+chown -R 0:0 "$LOGDIR"
 
-chown -R puppetdb:puppetdb /etc/puppetlabs/puppetdb
-chown -R puppetdb:puppetdb /opt/puppetlabs/server/data/puppetdb
-chown -R puppetdb:puppetdb /var/log/puppetlabs/puppetdb
-chown -R puppetdb:puppetdb /var/run/puppetlabs/puppetdb
-chown -R puppetdb:puppetdb "$LOGDIR"
+# group-0 perms for arbitrary UIDs
+for d in /etc/puppetlabs /etc/logrotate.d /var/log/puppetlabs /var/run/puppetlabs /opt/puppetlabs "$LOGDIR"; do
+  mkdir -p "$d"
+  chgrp -R 0 "$d"
+  chmod -R g=u "$d"
+  find "$d" -type d -exec chmod g+s {} +
+done
+
+# empty USER lets foreground run under any UID
+sed -i 's/^ *USER="puppetdb"/USER=""/' /etc/default/puppetdb
 
 # We want to use the HOCON database.conf and config.conf files, so get rid of the packaged files
 rm -f /etc/puppetlabs/puppetdb/conf.d/database.ini

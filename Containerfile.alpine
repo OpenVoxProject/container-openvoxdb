@@ -81,7 +81,8 @@ COPY Containerfile.alpine /Containerfile
 
 RUN /prep_release_container.sh
 
-USER puppetdb:0
+# group 0 allows arbitrary UIDs, 64604 is set as default
+USER 64604:0
 
 # k8s uses livenessProbe, startupProbe, readinessProbe and ignores HEALTHCHECK
 HEALTHCHECK --interval=20s --timeout=15s --retries=12 --start-period=3m CMD ["/healthcheck.sh"]
