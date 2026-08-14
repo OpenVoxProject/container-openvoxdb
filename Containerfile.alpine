@@ -4,7 +4,7 @@ FROM alpine:3.24 AS base
 ARG JDK_VERSION=21
 ARG PQL_VERSION=17
 RUN apk update && apk upgrade \
-    && apk add --no-cache openjdk${JDK_VERSION}-jre-headless bash tar xz postgresql${PQL_VERSION}-client \
+    && apk add --no-cache openjdk${JDK_VERSION}-jre-headless bash tar xz postgresql${PQL_VERSION}-client openssl \
     && rm -rf /var/cache/apk/*
 
 ################################################################################
