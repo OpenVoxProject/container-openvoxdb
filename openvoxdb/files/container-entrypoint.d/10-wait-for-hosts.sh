@@ -33,7 +33,9 @@ OPENVOXSERVER_HOSTNAME="${OPENVOXSERVER_HOSTNAME:-puppet}"
 OPENVOXSERVER_PORT="${OPENVOXSERVER_PORT:-8140}"
 
 # wait for postgres is ready
-/wtfc.sh --timeout="${OPENVOXDB_WAITFORHOST_SECONDS}" --interval=1 --progress "pg_isready -h ${OPENVOXDB_POSTGRES_HOSTNAME} --port '${OPENVOXDB_POSTGRES_PORT:-5432}'"
+# -U is required: without it pg_isready derives a username from /etc/passwd,
+# which fails under arbitrary UIDs ("no attempt")
+/wtfc.sh --timeout="${OPENVOXDB_WAITFORHOST_SECONDS}" --interval=1 --progress "pg_isready -h ${OPENVOXDB_POSTGRES_HOSTNAME} --port '${OPENVOXDB_POSTGRES_PORT:-5432}' -U '${OPENVOXDB_POSTGRES_USER:-openvoxdb}'"
 
 # wait for puppetserver DNS, then healthcheck
 if [ "$USE_OPENVOXSERVER" = true ]; then
