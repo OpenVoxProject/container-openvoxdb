@@ -1,0 +1,67 @@
+{
+  // Managed by modulesync - DO NOT EDIT
+  // https://voxpupuli.org/docs/updating-files-managed-with-modulesync/
+  //
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  // Apply shared labels so dependency updates are easy to filter in GitHub.
+  "addLabels": [
+    "dependencies",
+    "renovate"
+  ],
+  // Keep routine dependency updates low-touch for repos with CODEOWNERS.
+  "assigneesFromCodeOwners": true,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/(^|/)Containerfile\\.(?:alpine|ubuntu)$/",
+        "/(^|/)build_versions\\.yaml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>custom\\.voxpupuli-artifacts)\\s+depName=(?<depName>openvoxdb)\\s*\\n\\s*(?:ARG\\s+OPENVOXDB_VERSION=|db_version:\\s*\")(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "versioningTemplate": "semver"
+    }
+  ],
+  "customDatasources": {
+    "voxpupuli-artifacts": {
+      "defaultRegistryUrlTemplate": "https://artifacts.voxpupuli.org/{{packageName}}/",
+      "format": "html"
+    }
+  },
+  // Use Renovate's normal defaults, but open PRs immediately instead of waiting.
+  "extends": [
+    "config:recommended",
+    ":prImmediately"
+  ],
+  // Mark vulnerability alerts separately from normal dependency updates.
+  "vulnerabilityAlerts": {
+    "addLabels": [
+      "security"
+    ],
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      // GitHub Actions are updated centrally in the ModuleSync configuration repository.
+      "enabled": false,
+      "matchManagers": [
+        "github-actions"
+      ]
+    },
+    {
+      "matchDatasources": [
+        "custom.voxpupuli-artifacts"
+      ],
+      "allowedVersions": "/^8\\./",
+      "extractVersion": "^(?<version>\\d+\\.\\d+\\.\\d+)/$"
+    },
+    {
+      // Do not require dashboard approval before creating updates.
+      "dependencyDashboardApproval": false,
+      "matchPackageNames": [
+        "/.*/"
+      ]
+    }
+  ]
+}
