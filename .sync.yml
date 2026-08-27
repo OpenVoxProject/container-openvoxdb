@@ -11,6 +11,25 @@
     - 'OPENVOXDB_VERSION=${{ matrix.db_version }}'
     - 'JDK_VERSION=${{ matrix.jdk_version }}'
     - 'PQL_VERSION=${{ matrix.pql_version }}'
+.github/renovate.jsonc:
+  renovate_custom_managers:
+    - customType: regex
+      managerFilePatterns:
+        - /(^|/)Containerfile\.(?:alpine|ubuntu)$/
+        - /(^|/)build_versions\.yaml$/
+      matchStrings:
+        - >-
+          #\s*renovate:\s*datasource=(?<datasource>custom\.voxpupuli-artifacts)\s+depName=(?<depName>openvoxdb)\s*\n\s*(?:ARG\s+OPENVOXDB_VERSION=|db_version:\s*")(?<currentValue>\d+\.\d+\.\d+)
+      versioningTemplate: semver
+  renovate_custom_datasources:
+    voxpupuli-artifacts:
+      defaultRegistryUrlTemplate: 'https://artifacts.voxpupuli.org/{{packageName}}/'
+      format: html
+  renovate_package_rules:
+    - matchDatasources:
+        - custom.voxpupuli-artifacts
+      allowedVersions: '/^8\./'
+      extractVersion: '^(?<version>\d+\.\d+\.\d+)/$'
 .github/workflows/ci.yml:
   general_ci_scan_dir: ./openvoxdb
   build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'

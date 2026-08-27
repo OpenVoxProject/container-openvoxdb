@@ -1,6 +1,6 @@
 # OpenVox DB container
 
-[![CI](https://github.com/openvoxproject/container-openvoxdb/actions/workflows/ci.yaml/badge.svg)](https://github.com/openvoxproject/container-openvoxdb/actions/workflows/ci.yaml)
+[![CI](https://github.com/openvoxproject/container-openvoxdb/actions/workflows/ci.yml/badge.svg)](https://github.com/openvoxproject/container-openvoxdb/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/openvoxproject/container-openvoxdb.svg)](https://github.com/openvoxproject/container-openvoxdb/blob/main/LICENSE)
 [![Sponsored by betadots GmbH](https://img.shields.io/badge/Sponsored%20by-betadots%20GmbH-blue.svg)](https://www.betadots.de)
 
@@ -71,13 +71,13 @@ podman pull ghcr.io/openvoxproject/openvoxdb:8.13.0-v1.2.3
 ```
 
 The OpenVoxDB version describes the database version contained in the image.
-The container version follows semantic versioning and describes changes to the
-container image independently of the OpenVoxDB version.
+The container version follows semantic versioning and
+describes changes to the container image independently of the OpenVoxDB version.
 
 ## Permissions
 
-The image runs with GID 0 and supports any runtime UID. GID 0 is what allows 
-file access. 
+The image runs with GID 0 and supports any runtime UID.
+GID 0 is what allows file access.
 
 Volumes can be adjusted to it via:
 
