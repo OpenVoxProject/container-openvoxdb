@@ -5,9 +5,7 @@
 
 source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
-group :release do
+group :release, optional: true do
   gem 'faraday-retry', '~> 2.1', require: false
-  # https://www.rubyonmac.dev/certificate-verify-failed-unable-to-get-certificate-crl-openssl-ssl-sslerror
-  gem "openssl", "~> 4.0.0", require: false
-  gem 'github_changelog_generator', '~> 1.18.0', require: false
+  gem 'github_changelog_generator', '~> 1.18', require: false
 end
