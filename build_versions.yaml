@@ -3,8 +3,13 @@
 # tags follow. Exactly one entry should carry it.
 include:
   - release: "8"
-    latest: true
     # renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
     db_version: "8.15.0"
+    jdk_version: "21"
+    pql_version: "17"
+  - release: "9"
+    latest: true
+    # renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
+    db_version: "9.1.0"
     jdk_version: "21"
     pql_version: "17"

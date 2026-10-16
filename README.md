@@ -58,11 +58,14 @@ suffix.
 | `<openvoxdb.version>-alpine` | `8.13.0-alpine` | Latest Alpine build for an OpenVoxDB version |
 | `<openvoxdb.major>` | `8` | Latest build for an OpenVoxDB major version, using Ubuntu |
 | `<openvoxdb.major>-alpine` | `8-alpine` | Latest Alpine build for an OpenVoxDB major version |
-| `latest` | `latest` | Latest Ubuntu build from the `main` branch |
-| `latest-alpine` | `latest-alpine` | Latest Alpine build from the `main` branch |
+| `latest` | `latest` | Latest OpenVoxDB 9 Ubuntu build from the `main` branch |
+| `latest-alpine` | `latest-alpine` | Latest OpenVoxDB 9 Alpine build from the `main` branch |
 
 Builds from the `main` branch are additionally tagged as
 `<openvoxdb.version>-main` and `<openvoxdb.version>-main-alpine`.
+
+Images are built for both OpenVoxDB 8 and 9. Use the `8` or `8-alpine` tags
+to stay on OpenVoxDB 8, as `latest` and `latest-alpine` follow OpenVoxDB 9.
 
 Example using an immutable container release:
 
