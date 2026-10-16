@@ -68,7 +68,18 @@
   publish_tags:
     - 'ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-${{ matrix.os }}-${{ matrix.platform }}'
   publish_manifest_matrix_command: bash matrix.sh tag
+  # Run each release's manifest leg even when another release failed to build,
+  # so one release can't block the other. The first step checks that all of
+  # the release's source images exist, so a release publishes in full or not
+  # at all. publish_manifest_if needs voxpupuli/container_modulesync_configs#115.
+  publish_manifest_if: "${{ !cancelled() && needs.setup-matrix.result == 'success' }}"
   publish_manifest_steps:
+    - name: Check source images
+      commands:
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-amd64 > /dev/null
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-arm64 > /dev/null
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64 > /dev/null
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64 > /dev/null
     - name: Create ref-specific Ubuntu manifest
       commands:
         - >-

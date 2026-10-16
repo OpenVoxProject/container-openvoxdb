@@ -80,6 +80,7 @@ jobs:
   create-multiarch-manifests:
     name: Create multi-architecture manifests
     runs-on: ubuntu-latest
+    if: ${{ !cancelled() && needs.setup-matrix.result == 'success' }}
     needs:
       - setup-matrix
       - build-and-push-container
@@ -103,6 +104,13 @@ jobs:
           registry: docker.io
           username: voxpupulibot
           password: ${{ secrets.DOCKERHUB_BOT_ADMIN_TOKEN }}
+
+      - name: Check source images
+        run: |
+          docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-amd64 > /dev/null
+          docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-arm64 > /dev/null
+          docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64 > /dev/null
+          docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64 > /dev/null
 
       - name: Create ref-specific Ubuntu manifest
         run: |
