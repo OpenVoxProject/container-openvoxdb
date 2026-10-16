@@ -113,12 +113,12 @@ jobs:
           docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}-alpine -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-alpine -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-alpine -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}-alpine -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-alpine -t docker.io/voxpupuli/openvoxdb:${{ matrix.release }}-alpine ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64 ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64
 
       - name: Update floating Ubuntu tag
-        if: github.ref == 'refs/heads/main'
+        if: ${{ github.ref == 'refs/heads/main' && matrix.latest }}
         run: |
           docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxdb:latest -t docker.io/voxpupuli/openvoxdb:latest ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-arm64 ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-amd64
 
       - name: Update floating Alpine tag
-        if: github.ref == 'refs/heads/main'
+        if: ${{ github.ref == 'refs/heads/main' && matrix.latest }}
         run: |
           docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxdb:latest-alpine -t docker.io/voxpupuli/openvoxdb:latest-alpine ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64 ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64
 

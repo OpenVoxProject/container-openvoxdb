@@ -1,6 +1,9 @@
 ---
+# `latest: true` marks the release that the floating latest and latest-alpine
+# tags follow. Exactly one entry should carry it.
 include:
   - release: "8"
+    latest: true
     # renovate: datasource=custom.voxpupuli-artifacts depName=openvoxdb
     db_version: "8.15.0"
     jdk_version: "21"
