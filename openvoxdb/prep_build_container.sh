@@ -37,20 +37,27 @@ install -m 0644 ext/config/conf.d/jetty.ini      "/etc/puppetlabs/puppetdb/conf.
 install -m 0644 ext/config/conf.d/auth.conf      "/etc/puppetlabs/puppetdb/conf.d/auth.conf"
 
 install -m 0644 puppetdb.jar                     "/opt/puppetlabs/server/apps/puppetdb"
-install -m 0755 ext/ezbake-functions.sh          "/opt/puppetlabs/server/apps/puppetdb"
+# Not present in OpenVoxDB 9
+if [ -f ext/ezbake-functions.sh ]; then
+  install -m 0755 ext/ezbake-functions.sh        "/opt/puppetlabs/server/apps/puppetdb"
+fi
 install -m 0644 ext/ezbake.manifest              "/opt/puppetlabs/server/apps/puppetdb"
 
 install -m 0755 "ext/bin/puppetdb"               "/opt/puppetlabs/server/apps/puppetdb/bin/puppetdb"
 
 install -m 0755 ext/cli/ssl-setup                "/opt/puppetlabs/server/apps/puppetdb/cli/apps/ssl-setup"
-install -m 0755 ext/cli/start                    "/opt/puppetlabs/server/apps/puppetdb/cli/apps/start"
 install -m 0755 ext/cli/upgrade                  "/opt/puppetlabs/server/apps/puppetdb/cli/apps/upgrade"
 install -m 0755 ext/cli/anonymize                "/opt/puppetlabs/server/apps/puppetdb/cli/apps/anonymize"
-install -m 0755 ext/cli/stop                     "/opt/puppetlabs/server/apps/puppetdb/cli/apps/stop"
 install -m 0755 ext/cli/delete-reports           "/opt/puppetlabs/server/apps/puppetdb/cli/apps/delete-reports"
 install -m 0755 ext/cli/reload                   "/opt/puppetlabs/server/apps/puppetdb/cli/apps/reload"
 install -m 0755 ext/cli/config-migration         "/opt/puppetlabs/server/apps/puppetdb/cli/apps/config-migration"
 install -m 0755 ext/cli/foreground               "/opt/puppetlabs/server/apps/puppetdb/cli/apps/foreground"
+# Not present in OpenVoxDB 9
+for app in start stop; do
+  if [ -f "ext/cli/${app}" ]; then
+    install -m 0755 "ext/cli/${app}" "/opt/puppetlabs/server/apps/puppetdb/cli/apps/${app}"
+  fi
+done
 install -m 0755 ext/cli_defaults/cli-defaults.sh "/opt/puppetlabs/server/apps/puppetdb/cli/"
 
 install -m 0755 install.sh                       "/opt/puppetlabs/server/apps/puppetdb/scripts"

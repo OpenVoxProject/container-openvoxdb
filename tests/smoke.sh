@@ -47,6 +47,27 @@ fail() {
   exit 1
 }
 
+# OpenVoxDB 9 no longer ships these, so the 9 images leave them out (see
+# MIGRATION.md); the 8 images keep them.
+major=${expected%%.*}
+for path in \
+  /opt/puppetlabs/server/apps/puppetdb/ezbake-functions.sh \
+  /opt/puppetlabs/server/apps/puppetdb/cli/apps/start \
+  /opt/puppetlabs/server/apps/puppetdb/cli/apps/stop; do
+  rc=0
+  docker run --rm --entrypoint /bin/sh "${image}" -c "test -e '${path}'" || rc=$?
+  case "${rc}" in
+    0) present=true ;;
+    1) present=false ;;
+    *) fail "could not check for ${path} in ${image} (exit ${rc})" ;;
+  esac
+  if [ "${major}" -lt 9 ] && [ "${present}" = false ]; then
+    fail "${path} is missing from an OpenVoxDB ${major} image"
+  elif [ "${major}" -ge 9 ] && [ "${present}" = true ]; then
+    fail "${path} is present in an OpenVoxDB ${major} image"
+  fi
+done
+
 docker network create "${network}" > /dev/null
 
 # The floating tag is deliberate: the test should track the PostgreSQL minor

@@ -32,7 +32,7 @@
       extractVersion: '^(?<version>\d+\.\d+\.\d+)/$'
 .github/workflows/ci.yml:
   general_ci_scan_dir: ./openvoxdb
-  build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'
+  build_job_name: 'Build OpenVoxDB ${{ matrix.release }} ${{ matrix.os }} / ${{ matrix.platform }} CI container'
   # matrix.sh's own test needs no image, so it runs first and once: on the
   # ubuntu/amd64 leg of the latest release, using the yq that the runner image
   # ships. Then smoke-test each image with USE_OPENVOXSERVER=false, and on its
@@ -51,8 +51,8 @@
       '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
       'ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}'
 .github/workflows/security_scanning.yml:
-  scan_job_name: 'Scan ${{ matrix.os }} / ${{ matrix.platform }} container'
-  sarif_category: 'grype-${{ matrix.os }}-${{ matrix.platform }}'
+  scan_job_name: 'Scan OpenVoxDB ${{ matrix.release }} ${{ matrix.os }} / ${{ matrix.platform }} container'
+  sarif_category: 'grype-${{ matrix.release }}-${{ matrix.os }}-${{ matrix.platform }}'
 .github/workflows/build_container.yml:
   publish_tag_patterns:
     - 'v*'
