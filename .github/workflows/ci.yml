@@ -77,6 +77,10 @@ jobs:
             JDK_VERSION=${{ matrix.jdk_version }}
             PQL_VERSION=${{ matrix.pql_version }}
 
+      - name: Test image
+        run: |
+          if [ '${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.latest }}' = ubuntu-amd64-true ]; then bash tests/matrix_test.sh; fi
+
   tests:
     name: Test suite
     if: always()
