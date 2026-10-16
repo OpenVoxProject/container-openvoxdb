@@ -33,11 +33,23 @@
 .github/workflows/ci.yml:
   general_ci_scan_dir: ./openvoxdb
   build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'
-  # matrix.sh's own test needs no image, so it runs once: on the ubuntu/amd64
-  # leg of the latest release, using the yq that the runner image ships.
+  # matrix.sh's own test needs no image, so it runs first and once: on the
+  # ubuntu/amd64 leg of the latest release, using the yq that the runner image
+  # ships. Then smoke-test each image with USE_OPENVOXSERVER=false, and on its
+  # default TLS path against the floating OpenVox Server release it pairs with
+  # (see tests/smoke.sh).
   test_commands:
     - >-
       if [ '${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.latest }}' = ubuntu-amd64-true ]; then bash tests/matrix_test.sh; fi
+    - >-
+      bash tests/smoke.sh
+      'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+      '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+    - >-
+      bash tests/smoke.sh
+      'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+      '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+      'ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}'
 .github/workflows/security_scanning.yml:
   scan_job_name: 'Scan ${{ matrix.os }} / ${{ matrix.platform }} container'
   sarif_category: 'grype-${{ matrix.os }}-${{ matrix.platform }}'

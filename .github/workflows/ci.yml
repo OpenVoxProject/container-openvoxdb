@@ -80,6 +80,8 @@ jobs:
       - name: Test image
         run: |
           if [ '${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.latest }}' = ubuntu-amd64-true ]; then bash tests/matrix_test.sh; fi
+          bash tests/smoke.sh 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}' '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+          bash tests/smoke.sh 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}' '${{ matrix.db_version }}' '${{ matrix.pql_version }}' 'ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}'
 
   tests:
     name: Test suite
