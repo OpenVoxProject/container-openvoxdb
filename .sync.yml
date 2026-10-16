@@ -28,8 +28,15 @@
   renovate_package_rules:
     - matchDatasources:
         - custom.voxpupuli-artifacts
-      allowedVersions: '/^8\./'
       extractVersion: '^(?<version>\d+\.\d+\.\d+)/$'
+    - matchDatasources:
+        - custom.voxpupuli-artifacts
+      matchCurrentVersion: '/^8\./'
+      allowedVersions: '/^8\./'
+    - matchDatasources:
+        - custom.voxpupuli-artifacts
+      matchCurrentVersion: '/^9\./'
+      allowedVersions: '/^9\./'
 .github/workflows/ci.yml:
   general_ci_scan_dir: ./openvoxdb
   build_job_name: 'Build OpenVoxDB ${{ matrix.release }} ${{ matrix.os }} / ${{ matrix.platform }} CI container'
