@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Warning: This variable API is experimental so these variables may be subject
 # to change in the future.
 
-tar -x -z -f /openvoxdb-${OPENVOXDB_VERSION}.tar.gz -C /
+tar -x -z -f "/openvoxdb-${OPENVOXDB_VERSION}.tar.gz" -C /
 
-cd /puppetdb-${OPENVOXDB_VERSION}
+cd "/puppetdb-${OPENVOXDB_VERSION}"
 
 install -d "/etc/logrotate.d" -m 0755
 install -d "/etc/puppetlabs/puppetdb" -m 0750
