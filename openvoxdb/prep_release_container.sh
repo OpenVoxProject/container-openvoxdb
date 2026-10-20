@@ -2,17 +2,19 @@
 
 set -e
 
-if command -v apk > /dev/null 2>&1; then
+if command -v apk >/dev/null 2>&1; then
   apk update
   apk add --no-cache \
+    ruby \
     curl \
     dumb-init \
     runuser \
     coreutils \
     gcompat
-elif command -v apt-get > /dev/null 2>&1; then
+elif command -v apt-get >/dev/null 2>&1; then
   apt-get update
   apt-get install -y --no-install-recommends \
+    ruby \
     coreutils \
     curl \
     dumb-init \
@@ -23,6 +25,8 @@ else
   echo "Unsupported package manager" >&2
   exit 1
 fi
+
+gem install --no-document hocon:1.4.0
 
 # The container runs as UID 64604 by default, but any UID works. Everything the
 # server needs to write is root-owned with group 0 mirroring the owner permissions
