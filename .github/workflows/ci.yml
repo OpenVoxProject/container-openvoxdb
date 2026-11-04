@@ -49,7 +49,7 @@ jobs:
       shellcheck_scan_dir: './openvoxdb'
 
   build-container:
-    name: Build ${{ matrix.os }} / ${{ matrix.platform }} CI container
+    name: Build OpenVoxDB ${{ matrix.release }} ${{ matrix.os }} / ${{ matrix.platform }} CI container
     runs-on: ${{ matrix.runner }}
     needs:
       - setup-matrix
@@ -76,6 +76,12 @@ jobs:
             OPENVOXDB_VERSION=${{ matrix.db_version }}
             JDK_VERSION=${{ matrix.jdk_version }}
             PQL_VERSION=${{ matrix.pql_version }}
+
+      - name: Test image
+        run: |
+          if [ '${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.latest }}' = ubuntu-amd64-true ]; then bash tests/matrix_test.sh; fi
+          bash tests/smoke.sh 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}' '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+          bash tests/smoke.sh 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}' '${{ matrix.db_version }}' '${{ matrix.pql_version }}' 'ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}'
 
   tests:
     name: Test suite

@@ -39,7 +39,7 @@ jobs:
         run: echo "build-matrix=$(bash matrix.sh build)" >> "$GITHUB_OUTPUT"
 
   scan-container:
-    name: Scan ${{ matrix.os }} / ${{ matrix.platform }} container
+    name: Scan OpenVoxDB ${{ matrix.release }} ${{ matrix.os }} / ${{ matrix.platform }} container
     runs-on: ${{ matrix.runner }}
     needs:
       - setup-matrix
@@ -83,4 +83,4 @@ jobs:
         uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
-          category: 'grype-${{ matrix.os }}-${{ matrix.platform }}'
+          category: 'grype-${{ matrix.release }}-${{ matrix.os }}-${{ matrix.platform }}'
