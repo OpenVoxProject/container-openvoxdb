@@ -53,8 +53,21 @@
       "matchDatasources": [
         "custom.voxpupuli-artifacts"
       ],
-      "allowedVersions": "/^8\\./",
       "extractVersion": "^(?<version>\\d+\\.\\d+\\.\\d+)/$"
+    },
+    {
+      "matchDatasources": [
+        "custom.voxpupuli-artifacts"
+      ],
+      "matchCurrentVersion": "/^8\\./",
+      "allowedVersions": "/^8\\./"
+    },
+    {
+      "matchDatasources": [
+        "custom.voxpupuli-artifacts"
+      ],
+      "matchCurrentVersion": "/^9\\./",
+      "allowedVersions": "/^9\\./"
     },
     {
       // Do not require dashboard approval before creating updates.
