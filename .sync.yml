@@ -33,11 +33,31 @@
 .github/workflows/ci.yml:
   general_ci_scan_dir: ./openvoxdb
   build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'
-  # matrix.sh's own test needs no image, so it runs on the ubuntu/amd64 leg
-  # only, using the yq that the runner image ships.
+  # Every test runs whatever the others do, and the step fails at the end if
+  # any of them failed, so one failure never hides another test's result.
+  # The unit tests (matrix.sh's own) need no image, so they run once: on the
+  # ubuntu/amd64 leg, using the yq that the runner image ships; the template
+  # offers no earlier hook. Each image is smoke-tested with
+  # USE_OPENVOXSERVER=false, and on its default TLS path against the floating
+  # OpenVox Server release it pairs with (see tests/smoke.sh).
   test_commands:
+    - failed=0
     - >-
-      if [ '${{ matrix.os }}-${{ matrix.platform }}' = ubuntu-amd64 ]; then bash tests/matrix_test.sh; fi
+      if [ '${{ matrix.os }}-${{ matrix.platform }}' = ubuntu-amd64 ]; then
+      bash tests/matrix_test.sh || failed=1;
+      fi
+    - >-
+      bash tests/smoke.sh
+      'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+      '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+      || failed=1
+    - >-
+      bash tests/smoke.sh
+      'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+      '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+      'ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}'
+      || failed=1
+    - exit "${failed}"
 .github/workflows/security_scanning.yml:
   scan_job_name: 'Scan ${{ matrix.os }} / ${{ matrix.platform }} container'
   sarif_category: 'grype-${{ matrix.os }}-${{ matrix.platform }}'
