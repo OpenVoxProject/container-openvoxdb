@@ -37,15 +37,21 @@
   # any of them failed, so one failure never hides another test's result.
   # The unit tests (matrix.sh's own) need no image, so they run once: on the
   # ubuntu/amd64 leg, using the yq that the runner image ships; the template
-  # offers no earlier hook. Each image is smoke-tested with
-  # USE_OPENVOXSERVER=false, and on its default TLS path against the floating
-  # OpenVox Server release it pairs with (see tests/smoke.sh).
+  # offers no earlier hook. Each image then checks that its build script stops
+  # at the first missing file (see tests/prep_build_test.sh), and is
+  # smoke-tested with USE_OPENVOXSERVER=false and on its default TLS path
+  # against the floating OpenVox Server release it pairs with (see
+  # tests/smoke.sh).
   test_commands:
     - failed=0
     - >-
       if [ '${{ matrix.os }}-${{ matrix.platform }}' = ubuntu-amd64 ]; then
       bash tests/matrix_test.sh || failed=1;
       fi
+    - >-
+      bash tests/prep_build_test.sh
+      'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+      || failed=1
     - >-
       bash tests/smoke.sh
       'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'

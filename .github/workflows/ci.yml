@@ -81,6 +81,7 @@ jobs:
         run: |
           failed=0
           if [ '${{ matrix.os }}-${{ matrix.platform }}' = ubuntu-amd64 ]; then bash tests/matrix_test.sh || failed=1; fi
+          bash tests/prep_build_test.sh 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}' || failed=1
           bash tests/smoke.sh 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}' '${{ matrix.db_version }}' '${{ matrix.pql_version }}' || failed=1
           bash tests/smoke.sh 'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}' '${{ matrix.db_version }}' '${{ matrix.pql_version }}' 'ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}' || failed=1
           exit "${failed}"
