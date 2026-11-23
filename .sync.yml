@@ -28,14 +28,38 @@
   renovate_package_rules:
     - matchDatasources:
         - custom.voxpupuli-artifacts
-      allowedVersions: '/^8\./'
       extractVersion: '^(?<version>\d+\.\d+\.\d+)/$'
+    - matchDatasources:
+        - custom.voxpupuli-artifacts
+      matchCurrentVersion: '/^8\./'
+      allowedVersions: '/^8\./'
+    - matchDatasources:
+        - custom.voxpupuli-artifacts
+      matchCurrentVersion: '/^9\./'
+      allowedVersions: '/^9\./'
 .github/workflows/ci.yml:
   general_ci_scan_dir: ./openvoxdb
-  build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'
+  build_job_name: 'Build OpenVoxDB ${{ matrix.release }} ${{ matrix.os }} / ${{ matrix.platform }} CI container'
+  # matrix.sh's own test needs no image, so it runs first and once: on the
+  # ubuntu/amd64 leg of the latest release, using the yq that the runner image
+  # ships. Then smoke-test each image with USE_OPENVOXSERVER=false, and on its
+  # default TLS path against the floating OpenVox Server release it pairs with
+  # (see tests/smoke.sh).
+  test_commands:
+    - >-
+      if [ '${{ matrix.os }}-${{ matrix.platform }}-${{ matrix.latest }}' = ubuntu-amd64-true ]; then bash tests/matrix_test.sh; fi
+    - >-
+      bash tests/smoke.sh
+      'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+      '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+    - >-
+      bash tests/smoke.sh
+      'ci/openvoxdb:${{ matrix.db_version }}-${{ matrix.os }}-${{ matrix.platform }}'
+      '${{ matrix.db_version }}' '${{ matrix.pql_version }}'
+      'ghcr.io/openvoxproject/openvoxserver:${{ matrix.release }}'
 .github/workflows/security_scanning.yml:
-  scan_job_name: 'Scan ${{ matrix.os }} / ${{ matrix.platform }} container'
-  sarif_category: 'grype-${{ matrix.os }}-${{ matrix.platform }}'
+  scan_job_name: 'Scan OpenVoxDB ${{ matrix.release }} ${{ matrix.os }} / ${{ matrix.platform }} container'
+  sarif_category: 'grype-${{ matrix.release }}-${{ matrix.os }}-${{ matrix.platform }}'
 .github/workflows/build_container.yml:
   publish_tag_patterns:
     - 'v*'
@@ -44,7 +68,18 @@
   publish_tags:
     - 'ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-${{ matrix.os }}-${{ matrix.platform }}'
   publish_manifest_matrix_command: bash matrix.sh tag
+  # Run each release's manifest leg even when another release failed to build,
+  # so one release can't block the other. The first step checks that all of
+  # the release's source images exist, so a release publishes in full or not
+  # at all. publish_manifest_if needs voxpupuli/container_modulesync_configs#115.
+  publish_manifest_if: "${{ !cancelled() && needs.setup-matrix.result == 'success' }}"
   publish_manifest_steps:
+    - name: Check source images
+      commands:
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-amd64 > /dev/null
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-arm64 > /dev/null
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64 > /dev/null
+        - docker buildx imagetools inspect ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64 > /dev/null
     - name: Create ref-specific Ubuntu manifest
       commands:
         - >-
@@ -70,7 +105,7 @@
           ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64
           ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64
     - name: Update floating Ubuntu tag
-      if: "github.ref == 'refs/heads/main'"
+      if: "${{ github.ref == 'refs/heads/main' && matrix.latest }}"
       commands:
         - >-
           docker buildx imagetools create
@@ -79,7 +114,7 @@
           ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-arm64
           ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-amd64
     - name: Update floating Alpine tag
-      if: "github.ref == 'refs/heads/main'"
+      if: "${{ github.ref == 'refs/heads/main' && matrix.latest }}"
       commands:
         - >-
           docker buildx imagetools create
