@@ -35,18 +35,20 @@
   build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'
   # Every test runs whatever the others do, and the step fails at the end if
   # any of them failed, so one failure never hides another test's result.
-  # The unit tests (matrix.sh's own) need no image, so they run once: on the
-  # ubuntu/amd64 leg, using the yq that the runner image ships; the template
-  # offers no earlier hook. Each image then checks that its build script stops
-  # at the first missing file (see tests/prep_build_test.sh), and is
-  # smoke-tested with USE_OPENVOXSERVER=false and on its default TLS path
-  # against the floating OpenVox Server release it pairs with (see
-  # tests/smoke.sh).
+  # The unit tests (for matrix.sh, build_sequence.sh and the publish step)
+  # need no image, so they run once: on the ubuntu/amd64 leg, using the yq that
+  # the runner image ships; the template offers no earlier hook. Each image
+  # then checks that its build script stops at the first missing file (see
+  # tests/prep_build_test.sh), and is smoke-tested with USE_OPENVOXSERVER=false
+  # and on its default TLS path against the floating OpenVox Server release it
+  # pairs with (see tests/smoke.sh).
   test_commands:
     - failed=0
     - >-
       if [ '${{ matrix.os }}-${{ matrix.platform }}' = ubuntu-amd64 ]; then
       bash tests/matrix_test.sh || failed=1;
+      bash tests/build_sequence_test.sh || failed=1;
+      bash tests/publish_manifest_test.sh || failed=1;
       fi
     - >-
       bash tests/prep_build_test.sh
@@ -68,6 +70,9 @@
   scan_job_name: 'Scan ${{ matrix.os }} / ${{ matrix.platform }} container'
   sarif_category: 'grype-${{ matrix.os }}-${{ matrix.platform }}'
 .github/workflows/build_container.yml:
+  # The template always adds a tag trigger, so a v* tag push still builds the
+  # per-commit images. It publishes no build-numbered or floating tags: those
+  # come only from main, which the manifest steps check for.
   publish_tag_patterns:
     - 'v*'
   publish_build_job_name: 'Build OpenVoxDB ${{ matrix.db_version }} (${{ matrix.os }}/${{ matrix.platform }})'
@@ -75,31 +80,30 @@
   publish_tags:
     - 'ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-${{ matrix.os }}-${{ matrix.platform }}'
   publish_manifest_matrix_command: bash matrix.sh tag
+  # Only main publishes build-numbered tags, so other refs skip the registry
+  # lookup; the manifest step refuses to publish without a number.
+  publish_setup_steps:
+    - name: Determine build sequence numbers
+      id: build-sequence
+      commands:
+        - set -euo pipefail
+        - 'if [ "$GITHUB_REF" = refs/heads/main ]; then build_sequence=$(bash build_sequence.sh); else build_sequence="{}"; fi'
+        - 'echo "build-sequence=$build_sequence" >> "$GITHUB_OUTPUT"'
+  publish_setup_outputs:
+    build-sequence: '${{ steps.build-sequence.outputs.build-sequence }}'
+  # publish_manifest.sh checks the build number and publishes it; the manifest
+  # job checks out the repository to run it. publish_manifest_checkout needs
+  # voxpupuli/container_modulesync_configs#124.
+  publish_manifest_checkout: true
   publish_manifest_steps:
-    - name: Create ref-specific Ubuntu manifest
+    - name: Create build manifest
+      if: "${{ github.ref == 'refs/heads/main' }}"
       commands:
         - >-
-          docker buildx imagetools create
-          -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}
-          -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}
-          -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}
-          -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}
-          -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}
-          -t docker.io/voxpupuli/openvoxdb:${{ matrix.release }}
-          ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-arm64
-          ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-amd64
-    - name: Create ref-specific Alpine manifest
-      commands:
-        - >-
-          docker buildx imagetools create
-          -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}-alpine
-          -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-alpine
-          -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-alpine
-          -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}-alpine
-          -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-alpine
-          -t docker.io/voxpupuli/openvoxdb:${{ matrix.release }}-alpine
-          ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64
-          ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64
+          bash publish_manifest.sh
+          '${{ matrix.release }}' '${{ matrix.db_version }}'
+          '${{ fromJSON(needs.setup-matrix.outputs.build-sequence)[matrix.db_version] }}'
+          '${{ github.sha }}'
     - name: Update floating Ubuntu tag
       if: "github.ref == 'refs/heads/main'"
       commands:
