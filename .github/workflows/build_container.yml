@@ -27,6 +27,7 @@ jobs:
     outputs:
       build-matrix: ${{ steps.build-matrix.outputs.build-matrix }}
       manifest-matrix: ${{ steps.manifest-matrix.outputs.manifest-matrix }}
+      build-sequence: ${{ steps.build-sequence.outputs.build-sequence }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,6 +46,13 @@ jobs:
         run: |
           matrix_json=$(bash matrix.sh tag)
           echo "manifest-matrix=$matrix_json" >> "$GITHUB_OUTPUT"
+
+      - name: Determine build sequence numbers
+        id: build-sequence
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" = refs/heads/main ]; then build_sequence=$(bash build_sequence.sh); else build_sequence="{}"; fi
+          echo "build-sequence=$build_sequence" >> "$GITHUB_OUTPUT"
 
   build-and-push-container:
     name: Build OpenVoxDB ${{ matrix.db_version }} (${{ matrix.os }}/${{ matrix.platform }})
@@ -90,6 +98,9 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
@@ -104,13 +115,10 @@ jobs:
           username: voxpupulibot
           password: ${{ secrets.DOCKERHUB_BOT_ADMIN_TOKEN }}
 
-      - name: Create ref-specific Ubuntu manifest
+      - name: Create build manifest
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }} -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }} -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }} -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }} -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }} -t docker.io/voxpupuli/openvoxdb:${{ matrix.release }} ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-arm64 ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-ubuntu-amd64
-
-      - name: Create ref-specific Alpine manifest
-        run: |
-          docker buildx imagetools create -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}-alpine -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.db_version }}-alpine -t ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-alpine -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-${{ github.ref_name }}-alpine -t docker.io/voxpupuli/openvoxdb:${{ matrix.db_version }}-alpine -t docker.io/voxpupuli/openvoxdb:${{ matrix.release }}-alpine ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-arm64 ghcr.io/openvoxproject/openvoxdb:${{ matrix.release }}-${{ github.sha }}-alpine-amd64
+          bash publish_manifest.sh '${{ matrix.release }}' '${{ matrix.db_version }}' '${{ fromJSON(needs.setup-matrix.outputs.build-sequence)[matrix.db_version] }}' '${{ github.sha }}'
 
       - name: Update floating Ubuntu tag
         if: github.ref == 'refs/heads/main'

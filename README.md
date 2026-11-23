@@ -52,27 +52,44 @@ suffix.
 
 | Tag | Example | Description |
 | --- | --- | --- |
-| `<openvoxdb.version>-v<container.version>` | `8.13.0-v1.2.3` | Immutable Ubuntu container release |
-| `<openvoxdb.version>-v<container.version>-alpine` | `8.13.0-v1.2.3-alpine` | Immutable Alpine container release |
-| `<openvoxdb.version>` | `8.13.0` | Latest build for an OpenVoxDB version, using Ubuntu |
-| `<openvoxdb.version>-alpine` | `8.13.0-alpine` | Latest Alpine build for an OpenVoxDB version |
+| `<openvoxdb.version>-<build>` | `8.18.1-0` | Immutable Ubuntu build |
+| `<openvoxdb.version>-<build>-alpine` | `8.18.1-0-alpine` | Immutable Alpine build |
+| `<openvoxdb.version>` | `8.18.1` | Latest build for an OpenVoxDB version, using Ubuntu |
+| `<openvoxdb.version>-alpine` | `8.18.1-alpine` | Latest Alpine build for an OpenVoxDB version |
 | `<openvoxdb.major>` | `8` | Latest build for an OpenVoxDB major version, using Ubuntu |
 | `<openvoxdb.major>-alpine` | `8-alpine` | Latest Alpine build for an OpenVoxDB major version |
 | `latest` | `latest` | Latest Ubuntu build from the `main` branch |
 | `latest-alpine` | `latest-alpine` | Latest Alpine build from the `main` branch |
 
-Builds from the `main` branch are additionally tagged as
-`<openvoxdb.version>-main` and `<openvoxdb.version>-main-alpine`.
+The OpenVoxDB version describes the database version contained in the image.
+The build number identifies each image published for that OpenVoxDB version.
+Every time the `main` branch publishes an image, it gets one more than the
+highest build number already published, whether or not the OpenVoxDB version
+changed: a newer base image or Java package, or a change to the container
+scripts, all produce a new build number. A new OpenVoxDB version starts at `0`.
+The Ubuntu and Alpine images of the same build share its number. Build numbers
+only ever increase, but a publish that fails part-way and is run again from the
+start can skip one.
 
-Example using an immutable container release:
+Only the `main` branch publishes the tags above. Git tags and GitHub releases of
+this repository do not create build-numbered or floating tags.
+
+Example using an immutable build:
 
 ```shell
-podman pull ghcr.io/openvoxproject/openvoxdb:8.13.0-v1.2.3
+podman pull ghcr.io/openvoxproject/openvoxdb:8.18.1-0
 ```
 
-The OpenVoxDB version describes the database version contained in the image.
-The container version follows semantic versioning and
-describes changes to the container image independently of the OpenVoxDB version.
+Each build records the commit it was built from in the
+`org.opencontainers.image.revision` annotation of its image index:
+
+```shell
+skopeo inspect --raw docker://ghcr.io/openvoxproject/openvoxdb:<openvoxdb.version>-<build> | jq -r '.annotations["org.opencontainers.image.revision"]'
+```
+
+The `<openvoxdb.version>-v<container.version>` and `<openvoxdb.version>-main`
+tags used by earlier builds are no longer updated. See the
+[migration document](MIGRATION.md) if you use them.
 
 ## Permissions
 
@@ -136,6 +153,10 @@ These scripts will be executed at the end of the entrypoint script, before the s
 ## How to Release the container
 
 [see here](RELEASE.md)
+
+A release tags this repository and updates the changelog. It does not publish
+an image: every build of the `main` branch does that, as described under
+[Version schema](#version-schema).
 
 ## How to contribute
 
