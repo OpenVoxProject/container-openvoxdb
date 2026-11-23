@@ -33,6 +33,11 @@
 .github/workflows/ci.yml:
   general_ci_scan_dir: ./openvoxdb
   build_job_name: 'Build ${{ matrix.os }} / ${{ matrix.platform }} CI container'
+  # matrix.sh's own test needs no image, so it runs on the ubuntu/amd64 leg
+  # only, using the yq that the runner image ships.
+  test_commands:
+    - >-
+      if [ '${{ matrix.os }}-${{ matrix.platform }}' = ubuntu-amd64 ]; then bash tests/matrix_test.sh; fi
 .github/workflows/security_scanning.yml:
   scan_job_name: 'Scan ${{ matrix.os }} / ${{ matrix.platform }} container'
   sarif_category: 'grype-${{ matrix.os }}-${{ matrix.platform }}'
